@@ -1,0 +1,73 @@
+---
+title: "ungulates"
+author: "Ilya"
+date: "12/7/2018"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+####install packages
+```{r packages, echo=FALSE}
+pkgTest <- function(x)
+{
+  if (x %in% rownames(installed.packages()) == FALSE) {
+    install.packages(x, dependencies= TRUE)    
+  }
+  library(x, character.only = TRUE)
+}
+neededPackages <- c("leaflet", "raster", "mapview", "sp")
+
+for (package in neededPackages){pkgTest(package)}
+
+```
+
+
+
+###summarize EMPRES-i data
+####following directions here to make dataframe: https://stackoverflow.com/questions/29736577/how-to-convert-data-frame-to-spatial-coordinate"
+```{r}
+E = read.csv("Outbreak_list4775267628333941320.csv")
+dim(E)
+summary(E)
+df = E
+proj  = "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
+xy <- cbind(df$longitude,df$latitude)#package sp
+
+df <-SpatialPointsDataFrame(coords = xy, data = df, 
+                            proj4string = CRS(proj))
+
+# df <- raster::projection(df, CRS("+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"))
+
+pal <- colorNumeric("viridis", NULL)
+#commenting this out because it does not display well in github_document
+M<- leaflet(df) %>%
+  addTiles() %>%
+  addCircleMarkers(color = ~pal(sumCases),
+    stroke = FALSE, fillOpacity = 0.1) %>%
+  # setView(lat = 39.5, lng=-98.5, zoom =4) %>%
+   #  add(stroke = FALSE, smoothFactor = 0.3, fillOpacity = 1,
+   #  fillColor = ~pal(outC$incidence),
+   #  #label with county name 
+   #  label = ~paste0(county_name, ": ", formatC(outC$incidence, big.mark = ","))) %>%
+   addLegend(pal = pal, values = df$sumCases, opacity = 1.0,
+     labFormat = labelFormat(transform = function(x) round(10^x)))
+
+mapshot(M, file = "EMPRESi_cases.png")
+M
+```
+
+####global forest change: https://earthenginepartners.appspot.com/science-2013-global-forest/download_v1.5.html
+```{r}
+#Year of gross forest cover loss event (lossyear)
+#Forest loss during the period 2000–2017, defined as a stand-replacement disturbance, or a change from a forest to non-forest state. Encoded as either 0 (no loss) or else a value in the range 1–17, representing loss detected primarily in the year 2001–2017, respectively.
+#Granule with top-left corner at 10N, 20E
+r = raster("Hansen_GFC-2017-v1.5_lossyear_10N_020E.tif")
+plot(r)
+```
+
+  
+
+
