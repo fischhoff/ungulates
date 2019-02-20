@@ -1,0 +1,33 @@
+---
+title: "ungulates2"
+author: "Ilya"
+date: "2/20/2019"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+####install packages
+```{r packages, echo=FALSE}
+#install.packages("rlang")
+#library("rlang")
+pkgTest <- function(x)
+{
+  if (x %in% rownames(installed.packages()) == FALSE) {
+    install.packages(x, dependencies= TRUE)    
+  }
+  library(x, character.only = TRUE)
+}
+neededPackages <- c("leaflet", "raster", "mapview", "sp", "ggmap",
+                    "rasterVis",   "ggplot2", "dplyr", "RgoogleMaps", "rworldmap", "lubridate", "zoo", "broom")
+
+for (package in neededPackages){pkgTest(package)}
+```
+
+####get land cover
+```{r}
+source("R_landcover.R")
+```
+
