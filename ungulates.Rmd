@@ -11,6 +11,8 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ####install packages
 ```{r packages, echo=FALSE}
+#install.packages("rlang")
+#library("rlang")
 pkgTest <- function(x)
 {
   if (x %in% rownames(installed.packages()) == FALSE) {
@@ -18,56 +20,186 @@ pkgTest <- function(x)
   }
   library(x, character.only = TRUE)
 }
-neededPackages <- c("leaflet", "raster", "mapview", "sp")
+neededPackages <- c("leaflet", "raster", "mapview", "sp", "ggmap",
+                    "rasterVis",   "ggplot2", "dplyr", "RgoogleMaps", "rworldmap", "lubridate", "zoo", "broom")
 
 for (package in neededPackages){pkgTest(package)}
 
 ```
 
-
-
 ###summarize EMPRES-i data
-####following directions here to make dataframe: https://stackoverflow.com/questions/29736577/how-to-convert-data-frame-to-spatial-coordinate"
-```{r}
+```{r empresi}
 E = read.csv("Outbreak_list4775267628333941320.csv")
 dim(E)
 summary(E)
+save(E, file = "E.Rdata")
 df = E
+df$logsumCases = log(df$sumCases+0.01)
+#df = subset(df, !is.na(sumCases))
 proj  = "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
+
+# following directions here to make dataframe spatial: https://stackoverflow.com/questions/29736577/how-to-convert-data-frame-to-spatial-coordinate"
+
 xy <- cbind(df$longitude,df$latitude)#package sp
 
 df <-SpatialPointsDataFrame(coords = xy, data = df, 
                             proj4string = CRS(proj))
 
-# df <- raster::projection(df, CRS("+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"))
+plot <- ggplot(E, aes(x = longitude, y = latitude))+
+  geom_point(alpha = 0.1)
 
-pal <- colorNumeric("viridis", NULL)
+plot
+ggsave(plot = plot, file = "empres_disease.jpg")
+
+size = 10
+plot <- ggplot(E, aes(x = disease))+
+  geom_histogram(stat = "count")+
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5, size =size))
+
+plot
+ggsave(plot = plot, file = "empres_disease_hist.jpg")
+
+# pal <- colorNumeric("viridis", NULL)
 #commenting this out because it does not display well in github_document
-M<- leaflet(df) %>%
-  addTiles() %>%
-  addCircleMarkers(color = ~pal(sumCases),
-    stroke = FALSE, fillOpacity = 0.1) %>%
-  # setView(lat = 39.5, lng=-98.5, zoom =4) %>%
-   #  add(stroke = FALSE, smoothFactor = 0.3, fillOpacity = 1,
-   #  fillColor = ~pal(outC$incidence),
-   #  #label with county name 
-   #  label = ~paste0(county_name, ": ", formatC(outC$incidence, big.mark = ","))) %>%
-   addLegend(pal = pal, values = df$sumCases, opacity = 1.0,
-     labFormat = labelFormat(transform = function(x) round(10^x)))
-
-mapshot(M, file = "EMPRESi_cases.png")
-M
+# M<- leaflet(df) %>%
+#   addTiles() %>%
+#   addCircleMarkers(color = ~pal(disease),
+#     stroke = FALSE, fillOpacity = 0.1) %>%
+#   # setView(lat = 39.5, lng=-98.5, zoom =4) %>%
+#    #  add(stroke = FALSE, smoothFactor = 0.3, fillOpacity = 1,
+#    #  fillColor = ~pal(outC$incidence),
+#    #  #label with county name 
+#    #  label = ~paste0(county_name, ": ", formatC(outC$incidence, big.mark = ","))) %>%
+#    addLegend(pal = pal, values = df$sumCases, opacity = 1.0,
+#      labFormat = labelFormat(transform = function(x) round(10^x)))
+# 
+# mapshot(M, file = "EMPRESi_cases.png")
+#M
 ```
 
-####global forest change: https://earthenginepartners.appspot.com/science-2013-global-forest/download_v1.5.html
+####Parse species field
+Make separate row for each animal host species. Separate by commas. Create fields animal.origin (wild vs. domestic) and animal.species. Save out.Rdata
+```{r parse_species}
+source("parse_species.R")
+```
+
+####Graph locations of wild vs. domestic species
+```{r graph_wild_domestic_location}
+source("graph_wild_domestic_location.R")
+```
+
+####Subset to only include mammalian livestock. Save out_mammals.Rdata
+```{r  subset_mammals}
+source("subset_mammals.R")
+```
+
+####Graph locations of each mammal livestock species
+```{r graph_mammal_livestock}
+source("graph_mammal_livestock.R")
+```
+
+####Graph locations of each disease
+```{r  graph_disease_map}
+source("graph_disease_map.R")
+```
+
+
+
+####Read in FAO/ILRI livestock production zones map (source:  https://dataverse.harvard.edu/file.xhtml?persistentId=doi:10.7910/DVN/WPDSZE/GQAXNS&version=1.1). Generate and sample random points. Limit latitude range of random points to y<80 & y >-60 so that they fall within deforestation tiles. Exclude random points that lie within areas deemed unsuitable by FAO. Save r_df_sample.Rdata
+```{r livestock_production_systems}
+source("livestock_production_systems.R")
+```
+
+####Fix time
+```{r time}
+source("time.R")
+```
+
+####Graph outbreaks over time in livestock and wildlife
+```{r graph_time}
+source("graph_time.R")
+# source("graph_time_datetime.R")
+source("graph_time_datemonth.R")
+```
+
+
+####Graph outbreaks over time, stacked by disease
 ```{r}
+source("graph_time_diseases.R")
+```
+
+####Graph outbreaks over time, one facet per disease
+```{r}
+source("graph_time_diseases_facet.R")
+```
+
+
+
+####Combine presences and absences. Use "out_mammals.Rdata" and "r_df_sample.Rdata". Output: df_combined.Rdata
+```{r presence_absence_combine}
+source("presence_absence_combine.R")
+
+```
+
+###Assign environmental data to presence-absence data
+
+####Deforestation
+global forest change
+source: https://earthenginepartners.appspot.com/science-2013-global-forest/download_v1.5.html
+```{r deforest_sample}
 #Year of gross forest cover loss event (lossyear)
 #Forest loss during the period 2000–2017, defined as a stand-replacement disturbance, or a change from a forest to non-forest state. Encoded as either 0 (no loss) or else a value in the range 1–17, representing loss detected primarily in the year 2001–2017, respectively.
-#Granule with top-left corner at 10N, 20E
+#Granule with top-left corner at 10N, 20E (central Africa)
 r = raster("Hansen_GFC-2017-v1.5_lossyear_10N_020E.tif")
 plot(r)
 ```
 
-  
+Add fields to df_combined latitude_10 (nearest top 10 degree) and longitude_10 (left 10 degree). Resave df_combined.Rdata
+```{r deforestation}
+source("deforestation.R")
+```
+
+For each 10X10 degree quadrant of outbreak presence / absence data, download relevant tile of deforestation data, and extract deforestation data. Use as input df_combined.Rdata. Save out_deforest.  
+```{r getdef}
+source("getdef.R")
+```
+
+Add field indicating whether location has been deforested or not. Input out_deforest. Make graphs of deforest vs. no for outbreak vs. background locations. Input "out_deforest.Rdata"
+```{r deforest_binary}
+source("deforest_binary.R")
+```
+
+
+####Graph locations of outbreaks involving wild only, domestic only, or both
+```{r graph_origin_construct}
+source("graph_origin_construct.R")
+```
+
+
+
+###Gridded Livestock of the World
+####Cattle
+```{r cattle}
+# source("cattle.R")
+```
+
+###History Database of the Global Environment
+rangeland, 2017
+```{r history_plot}
+source("history_plot.R")
+```
+
+converted rangeland, 2017
+```{r history_plot_conv_rangeland_2017}
+source("history_plot_conv_rangeland_2017.R")
+```
+
+
+pasture, 2017
+```{r history_plot_pasture_2017}
+#source("history_plot_pasture_2017.R")
+```
+
+####after this proceed to ungulates1.Rmd
 
 

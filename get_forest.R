@@ -1,7 +1,8 @@
-#https://storage.googleapis.com/earthenginepartners-hansen/GFC-2017-v1.5/Hansen_GFC-2017-v1.5_lossyear_20S_020E.tif
-load("df_combined.Rdata")
-df = df_combined
+#http://earthenginepartners.appspot.com/science-2013-global-forest/download_v1.5.html
+load("df_deforest.Rdata")
+df = df_deforest
 
+#df$gain = NA
 df$latitude_word="N"
 df$longitude_word="E"
 inds = which(df$latitude_10<0)
@@ -18,11 +19,12 @@ df$latitude_word=paste0(df$latitude_10_string, df$latitude_word)
 df$longitude_word=paste0(df$longitude_10_string, df$longitude_word)
 
 #beginning of url
-begin = "https://storage.googleapis.com/earthenginepartners-hansen/GFC-2017-v1.5/Hansen_GFC-2017-v1.5_lossyear_"
+begin = "https://storage.googleapis.com/earthenginepartners-hansen/GFC-2017-v1.5/Hansen_GFC-2017-v1.5_gain_"
 
 left=sort(unique(df$longitude_10))
 # left=seq(from = -180,to=170,by=10)
 top=seq(from = -80,to=90,by=10)
+#top=-40
 # top=sort(unique(df$latitude_10))
 
 #initialize output as NULL
@@ -40,6 +42,8 @@ for (x in c(1:length(left)))#for each left edge
         print(y)
     #get presence/absence with left[x] and top[y] corner
     tempdf=(df[df$longitude_10==left[x]&df$latitude_10==top[y],])
+    print(dim(tempdf)[1])
+    
     if (dim(tempdf)[1]>0){#if there is at least one presence/absence
       path = paste0(begin, 
                     tempdf$latitude_word[1],
@@ -53,20 +57,20 @@ for (x in c(1:length(left)))#for each left edge
       
       # tell R that out coordinates are in the same lat/lon reference system
       projection(out_spdf) <- projection(r)
-      jpeg("test.jpg")
-      par(mar = c(3,3,3,3))
-      plot(r)
-      dev.off()
+      # jpeg("test.jpg")
+      # par(mar = c(3,3,3,3))
+      # plot(r)
+      # dev.off()
       locs.vals = raster::extract(r, out_spdf,
                                   df = TRUE, method = "simple")#specify 
       #make into dataframe
       locs.vals.df = data.frame(locs.vals)
       #create row indices
       locs.vals.df$row = seq(1, dim(locs.vals.df)[1])
-      names(locs.vals.df)[2]="lossyear"
+      names(locs.vals.df)[2]="gain"
       tempdf$row = seq(1, dim(locs.vals.df)[1])
       
-      tempdf= merge(tempdf, locs.vals.df)
+      tempdf= merge(tempdf, locs.vals.df, by = "row")
       ###
       #now with bilinear
       # locs.vals = raster::extract(r, out_spdf,
@@ -99,7 +103,7 @@ for (x in c(1:length(left)))#for each left edge
       # locs.vals.df = data.frame(locs.vals)
       # #create row indices
       # locs.vals.df$row = seq(1, dim(locs.vals.df)[1])
-      # names(locs.vals.df)[2]="lossyear_buffer1k"
+      # names(locs.vals.df)[2]="gain_buffer1k"
       # tempdf$row = seq(1, dim(locs.vals.df)[1])
       # 
       # tempdf= merge(tempdf, locs.vals.df)
@@ -111,22 +115,21 @@ for (x in c(1:length(left)))#for each left edge
       # locs.vals.df = data.frame(locs.vals)
       # #create row indices
       # locs.vals.df$row = seq(1, dim(locs.vals.df)[1])
-      # names(locs.vals.df)[2]="lossyear_buffer100k"
+      # names(locs.vals.df)[2]="gain_buffer100k"
       # tempdf$row = seq(1, dim(locs.vals.df)[1])
       # 
       # tempdf= merge(tempdf, locs.vals.df)
       
       #output to dataframe
       out = rbind(out, tempdf)
-      
-#      print(dim(r))
-#      print(dim(tempdf)[1])
-     # print("hello")
+      print("out")
+      print(dim(out)[1])
+    
     }#end if statement
   }#end top
 }#end left
-out_deforest = out
-save(out_deforest, file = "out_deforest.Rdata")
+out_forest = out
+save(out_forest, file = "out_forest.Rdata")
 
 
 

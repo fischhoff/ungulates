@@ -1,0 +1,41 @@
+---
+title: "ungulates1"
+author: "Ilya"
+date: "2/19/2019"
+output: github_document
+---
+
+####install packages
+```{r packages, echo=FALSE}
+#install.packages("rlang")
+#library("rlang")
+pkgTest <- function(x)
+{
+  if (x %in% rownames(installed.packages()) == FALSE) {
+    install.packages(x, dependencies= TRUE)    
+  }
+  library(x, character.only = TRUE)
+}
+neededPackages <- c("leaflet", "raster", "mapview", "sp", "ggmap",
+                    "rasterVis",   "ggplot2", "dplyr", "RgoogleMaps", "rworldmap", "lubridate", "zoo", "broom")
+
+for (package in neededPackages){pkgTest(package)}
+
+```
+
+##make graph of deforest vs. disease, defining deforest only as having taken place before outbreak (or in same year). Output: df_deforest.Rdata 
+```{r deforest_binary_year}
+source("deforest_binary_year.R")
+```
+
+####get data on forestation: conversion from non-forest to forest
+Input: df_deforest.Rdata. Output out_forest.Rdata
+```{r get_forest}
+source("get_forest.R")
+```
+
+####make graph of forestation vs. disease. Input "out_forest.Rdata"
+```{r R_forest_binary_year}
+source("R_forest_binary_year.R")
+```
+
