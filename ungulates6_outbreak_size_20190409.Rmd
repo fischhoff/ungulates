@@ -85,7 +85,7 @@ model =modelCases
 #Start the clock
 ptm<-proc.time()
 
-n.trees = 10000
+n.trees = 20000
 shrinkage = 0.001#final version should be 0.001
 cv.folds = 10#final version should be 10
 gbmtest<- gbm(model,
