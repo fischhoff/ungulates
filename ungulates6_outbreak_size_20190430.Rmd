@@ -1,0 +1,293 @@
+---
+title: "ungulates6_outbreak_size_20190409"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+####install packages
+```{r packages, echo=FALSE}
+#install.packages("rlang")
+#library("rlang")
+pkgTest <- function(x)
+{
+  if (x %in% rownames(installed.packages()) == FALSE) {
+    install.packages(x, dependencies= TRUE,repos = "http://cran.us.r-project.org")    
+  }
+  library(x, character.only = TRUE)
+}
+neededPackages <- c("colorspace",
+  "leaflet", "raster", "mapview", "sp", "ggmap",
+                    "rasterVis",   "ggplot2", "dplyr", "RgoogleMaps", "rworldmap", "lubridate", "zoo", "broom", "reticulate", "gbm", "caret", "caTools", "ROCR", "grDevices", "readxl")
+
+for (package in neededPackages){pkgTest(package)}
+```
+
+
+###load dfPredictors and dfAnimal. Reassign sumCases from dfAnimal to dfPredictors
+```{r}
+load("dfPredictors.Rdata")
+load("dfAnimal.Rdata")
+dfPredictors$sumCases = dfAnimal$sumCases
+dfPredictors = subset(dfPredictors, !is.na(sumCases))#remove NA cases
+dfPredictors = subset(dfPredictors, case == 1)#only interested in outbreak locations
+keep = setdiff(names(dfPredictors), "case")#remove case from columns 
+dfPredictorsCases = dfPredictors[,keep]#keep only certain columns
+save(dfPredictorsCases, file = "dfPredictorsCases.Rdata")
+dim(dfPredictorsCases)
+
+
+```
+
+###remove columns with near-zero variation
+```{r}
+load("dfPredictorsCases.Rdata")
+df = dfPredictorsCases
+# remove columns with near zero variance Global
+nzv <- nearZeroVar(df[,c(1:959)],saveMetrics=TRUE) #package caret
+nzv <- row.names(nzv[which(nzv$nzv==TRUE),])
+dropnzv<-names(df[ , which(names(df) %in% nzv)])
+write.csv(dropnzv, file = "dropnzv.csv")
+df<-df[ , -which(names(df) %in% nzv)]
+dfPredictorsCases = df
+save(dfPredictorsCases, file = "dfPredictorsCases.Rdata")
+```
+
+###make test and train
+```{r}
+load("dfPredictorsCases.Rdata")
+df = dfPredictorsCases
+DP =createDataPartition(y = df$sumCases, 
+                        p = 0.8,
+                        list = FALSE)
+TrainCases = df[DP,]
+TestCases = df[-DP,]
+
+save(TrainCases, file = "TrainCases.Rdata")
+save(TestCases, file = "TestCases.Rdata")
+```
+
+
+###make model
+```{r}
+load("dfPredictorsCases.Rdata")
+df = dfPredictorsCases
+
+columns = dim(df)[2]
+columns_min_1 = columns-1
+modelCases<-as.formula(paste(colnames(df)[columns], "~",
+                        paste(colnames(df)[c(1:columns_min_1)],collapse = "+"),
+                        sep = ""))
+print(modelCases)
+save(modelCases, file = "modelCases.Rdata")
+
+
+```
+
+
+###run GBM -- predictors include roads, livestock, nightlights (2013), land cover, climate, country
+```{r gbm_run}
+rm(list = ls())
+load("TrainCases.Rdata")
+load("TestCases.Rdata")
+# #https://stackoverflow.com/questions/19463137/error-in-evalexpr-envir-enclos-object-not-found
+Train = TrainCases
+attach(Train)
+load("modelCases.Rdata")
+model =modelCases
+#Start the clock
+ptm<-proc.time()
+
+n.trees = 100000
+shrinkage = 0.0001#final version should be 0.001
+cv.folds = 10#final version should be 10
+gbmtest<- gbm(model,
+              data=Train,
+              distribution="poisson",
+              n.trees=n.trees,
+              shrinkage=shrinkage,
+              interaction.depth=4,
+              bag.fraction=0.50,
+              train.fraction=1,
+              n.minobsinnode=5,
+              cv.folds=cv.folds,
+              keep.data=TRUE,
+              verbose=TRUE,
+              n.cores=NULL)
+
+gbmtestCases = gbmtest
+save(gbmtest, file = "gbmtestCases.Rdata")
+#check performance using 5-fold cross-validation
+best.iter <- gbm.perf(gbmtest,method="cv",plot.it=FALSE) #this gives you the optimal number of trees based on cv performance, other methods will over or under predict
+print(best.iter)
+
+gbm_error = data.frame(train.error = gbmtest$train.error,
+                       trees = seq(1,n.trees))
+plot <- ggplot(gbm_error, aes(x = trees, y = train.error))+
+  geom_line()
+plot
+ggsave(filename = "deviance_RoadAnimalNightLcClimateCountry.jpg",
+       plot = plot)
+#Stop the clock
+(proc.time()-ptm)/60
+
+r2 = 1-sum((TrainCases$sumCases - predict(gbmtest, newdata=TrainCases, n.trees =best.iter,
+                                       type="response"))^2)/
+       sum((TrainCases$sumCases - mean(TrainCases$sumCases))^2)
+  print(r2)
+
+r2.test = 1-sum((TestCases$sumCases - predict(gbmtest, newdata=TestCases, n.trees =best.iter,
+                                       type="response"))^2)/
+       sum((TestCases$sumCases - mean(TestCases$sumCases))^2)
+  print(r2.test)
+
+  
+  
+```
+
+
+###plot relative influence 
+###version with cutoff threshold of minimum interesting influence of 1%
+```{r rel_influence_1}
+#format relative influence for figure
+load("gbmtestCases.Rdata")
+gbmtest = gbmtestCases
+x = summary(gbmtest)
+# 
+x.df= data.frame(variable = x$var,
+                 relative.influence = x$rel.inf)
+
+x.df = subset(x.df, relative.influence >=1)
+
+x.df$variable = factor(x.df$variable, levels = x.df$variable[order(x.df$relative.influence)])
+x.dfCases = x.df
+save(x.dfCases, file = "x.dfCases.Rdata")
+ggplot(data = x.df, aes(x = variable, y =relative.influence))+
+  ylab("relative influence (%)")+
+  xlab("variable")+
+  geom_bar(stat="identity")+
+  coord_flip()
+# 
+ggsave("Figure.relative.influence.Cases.jpg")
+
+```
+
+###partial dependency plot
+Get data needed for partial dependency plot -- multiple road types. Requires gbmtest and Train. Makes "out_partial.Rdata"
+```{r partial_dependence1}
+load("gbmtestCases.Rdata")
+load("TrainCases.Rdata")
+Train = TrainCases
+gbmtest = gbmtestCases
+x.df = x.dfCases
+load("x.dfCases.Rdata")
+#https://stackoverflow.com/questions/26917689/how-to-use-facets-with-a-dual-y-axis-ggplot
+
+# Data
+out = NULL
+varlist = x.df$variable
+for (i in 1:length(varlist)){#begin for loop
+  #print(i)
+  i.var = which(gbmtest$var.names==varlist[i])
+  plot.out = plot.gbm(gbmtest, i.var = as.character(varlist[i]), return.grid = TRUE)
+  names(plot.out)[1]="variable.value"
+  names(plot.out)[2]="value"
+  plot.out$variable.name=varlist[i]
+  plot.out$var = "marginal.effect"#for plotting
+  out = rbind(out, plot.out)
+}#end for loop
+
+Train1=Train
+
+i =1
+i = 3
+for (i in 1:length(varlist)){#begin for loop through variables
+  print(i)
+  i.var = which(names(Train1)==varlist[i])
+  h = hist(Train1[,i.var], plot = TRUE)
+  tmp = data.frame(variable.value = h$mids,
+                   value=h$counts/sum(h$counts),#normalize
+                   variable.name=varlist[i],
+                   var = "frequency")
+  out = rbind(out, tmp)
+}#end for loop
+out_partialCases = out
+save(out_partialCases, file = "out_partialCases.Rdata")
+
+```
+
+###Make partial dependency plots
+```{r partial_dependence_plot}
+library(latticeExtra)
+#use latticeExtra to make two plots
+load("x.dfCases.Rdata")
+x.df = x.dfCases
+
+load("out_partialCases.Rdata")
+out_partial = out_partialCases
+#https://stat.ethz.ch/R-manual/R-devel/library/grDevices/html/png.html
+jpeg(filename = "Figure.partial.dependency.Cases.jpeg", width = 960, height = 960, quality = 95)
+out = out_partial
+x.df.sorted = sort(x.df$relative.influence, decreasing = FALSE, index.return= TRUE)
+x.df$sort_index_decreasing = x.df.sorted$ix
+x.df = subset(x.df, relative.influence>0)
+
+var.plot = x.df$variable
+
+out$variable.name=as.character(out$variable.name)
+
+neworder <- x.df$variable#var.plot
+library(plyr)  ## or dplyr (transform -> mutate)
+dat <- arrange(transform(out,
+                         variable.name=factor(variable.name,levels=neworder)),variable.name)
+out = dat
+
+## a variant of Figure 5.13 from Sarkar (2008)
+## http://lmdvr.r-forge.r-project.org/figures/figures.html?chapter=05;figure=05_1
+
+x_between = 5#not sure what this does, seems to affect size of subplot
+x_axis_cex = 1
+names(out)
+head(out)
+out$value = round(out$value, digits = 1)
+out_marg_eff = subset(out, var == "marginal.effect")
+out_marg_eff$value=round(out_marg_eff$value, digits = 1)
+marg_eff <- xyplot(value ~ variable.value | variable.name,
+                   data = out_marg_eff, type = "l", 
+                   #layout = c(4, 3),
+                   scales = list(relation = "free", x=list(cex=x_axis_cex)),
+                   between = list(x = x_between),
+                   ylab = "Marginal effect",
+                   xlab = "Predictor value",
+                   auto.key = FALSE,#legend,
+                   par.settings = list(strip.background=list(col="lightgrey")),
+                   par.strip.text=list(cex=1),
+                   as.table = TRUE
+)
+
+out_count = subset(out, var == "frequency")
+count_plot <- xyplot(value ~ variable.value | variable.name, data = out_count, type = "h",
+                     between = list(x = x_between),
+                     scales = list(relation = "free", x=list(cex=x_axis_cex)),
+                     ylab = "frequency",
+                     xlab = "predictor value",
+                     auto.key=FALSE,
+                     as.table = TRUE
+                     
+)
+#count_plot
+
+# doubleYScale(marg_eff, count_plot, style1 = 0, style2 = 3, add.ylab2 = TRUE,
+#    text = c("marginal effect", "frequency"), columns = 2)
+
+plot <- doubleYScale(marg_eff, count_plot, style1 = 0, style2 = 3, add.ylab2 = TRUE, columns = 2)
+plot
+dev.off()
+
+```
+
+
+
+
