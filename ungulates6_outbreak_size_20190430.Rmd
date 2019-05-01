@@ -1,5 +1,5 @@
 ---
-title: "ungulates6_outbreak_size_20190409"
+title: "ungulates6_outbreak_size_20190501"
 output: github_document
 ---
 
@@ -100,7 +100,7 @@ model =modelCases
 #Start the clock
 ptm<-proc.time()
 
-n.trees = 100000
+n.trees = 200000
 shrinkage = 0.0001#final version should be 0.001
 cv.folds = 10#final version should be 10
 gbmtest<- gbm(model,
