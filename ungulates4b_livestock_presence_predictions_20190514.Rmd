@@ -1,0 +1,592 @@
+---
+title: "ungulates4a livestock predictions"
+output: html_document
+---
+
+
+#make predictions
+###get land cover and add to other predictor fields
+###test out  assembling predictors
+```{r predictors_test}
+#livestock density from 2010
+
+# pig2010 = raster("Pigs10km_AD_2010_GLW2_01_TIF/Pigs10km_AD_2010_GLW2_01.tif")
+# 
+# cattle2010 = raster("Cattle10km_AD_2010_GLW2_01/Cattle10km_AD_2010_v2_1.tif")
+# 
+# animal2010 = addLayer(cattle2010, pig2010)
+# 
+# #assign a projection
+# projection(animal2010) <-CRS("+proj=longlat +datum=WGS84")
+# 
+# #convert raster to points (package raster)
+# predictorPointsCattlePig = rasterToPoints(animal2010, spatial=TRUE)
+# 
+# summary(predictorPointsCattlePig)
+# 
+# #now try converting cattle without adding layer
+# tmp = rasterToPoints(cattle2010, spatial = TRUE)
+# dim(tmp)
+# #summary(Cattle)
+# 
+# out = NULL
+# out[[1]]=data.frame(tmp)
+# 
+# tmp = rasterToPoints(pig2010, spatial = TRUE)
+# dim(tmp)
+# out[[2]]=data.frame(tmp)
+# 
+# out2= NULL
+# out2 = out[[1]]
+# for (a in 2){
+#   out2 = cbind(out2, out[[a]])
+# }
+
+```
+
+
+###assemble predictors into one raster brick
+```{r predictors_brick}
+
+path = "DATA/2_GlobalRuminantLPS_GIS/"
+r  = raster(paste0(path,"glps_gleam_61113_10km.tif"))
+
+#livestock density from 2010
+pig2010 = raster("DATA/Pigs10km_AD_2010_GLW2_01_TIF/Pigs10km_AD_2010_GLW2_01.tif")
+
+cattle2010 = raster("DATA/Cattle10km_AD_2010_GLW2_01/Cattle10km_AD_2010_v2_1.tif")
+
+animal2010 = addLayer(pig2010, cattle2010)
+
+#add layer of land use
+animal2010 = addLayer(animal2010, r)
+
+goats2010 = raster("DATA/Goats10km_AD_2010_v2_1_TIF/Goats10km_AD_2010_v2_1.tif")
+
+animal2010 = addLayer(animal2010, goats2010)
+
+sheep2010 = raster("DATA/Sheep10km_AD_2010_GLW2_1_TIF/Sheep10km_AD_2010_v2_1.tif")
+
+animal2010 = addLayer(animal2010, sheep2010)
+
+chickens2010 = raster("DATA/Chickens10km_AD_2010_v2_01_TIF/Chickens10km_AD_2010_v2_01.tif")
+
+animal2010 = addLayer(animal2010, chickens2010)
+names(animal2010)= c("pigs2010", "cattle2010", "livestock_system", "goats2010", "sheep2010", "chickens2010")
+R = animal2010
+dim(R)
+
+#https://www.globio.info/download-grip-dataset
+###road density -- type 1, highway
+R1 = raster("DATA/GRIP4_density_tp1/grip4_tp1_dens_m_km2.asc")
+###road density -- type 2, primary
+R2 = raster("DATA/GRIP4_density_tp2/grip4_tp2_dens_m_km2.asc")
+roads = addLayer(R1, R2)
+###road density -- type 3, secondary
+R3 = raster("DATA/GRIP4_density_tp3/grip4_tp3_dens_m_km2.asc")
+roads = addLayer(roads, R3)
+###road density -- type 4, tertiary
+R4 = raster("DATA/GRIP4_density_tp4/grip4_tp4_dens_m_km2.asc")
+roads = addLayer(roads, R4)
+###road density -- type 5, local
+R5 = raster("DATA/GRIP4_density_tp5/grip4_tp5_dens_m_km2.asc")
+roads = addLayer(roads, R5)
+
+###road density -- total
+R_road = raster("DATA/GRIP4_density_total/grip4_total_dens_m_km2.asc")
+roads = addLayer(roads, R_road)
+names(roads)=c("highway", "primary_roads", "secondary_roads",
+               "tertiary_roads", "local_roads", "RoadDensity")
+dim(roads)
+
+R = addLayer(R, roads)
+
+#assign a projection
+projection(R) <-CRS("+proj=longlat +datum=WGS84")
+
+Gl = raster("DATA/Globcover2009_V2.3_Global_/GLOBCOVER_L4_200901_200912_V2.3.tif")
+projection(Gl) <- CRS("+proj=longlat +datum=WGS84")
+
+#x = object to be resampled
+#y = object to be resampled to
+#resample with nearest neighbor for categorical data 
+#https://gis.stackexchange.com/questions/314960/resampling-raster-with-categorical-data-in-r
+Gl_resampled = resample(x = Gl, y = R, method = "ngb")
+save(Gl_resampled, file = "Gl_resampled.Rdata")
+R = addLayer(R, Gl_resampled)
+R_nightlights = raster("DATA/F182013.v4/F182013.v4c_web.stable_lights.avg_vis.tif")
+dim(R_nightlights)
+names(R_nightlights)= "nightlights2013"#give it name that matches analysis name
+#x = object to be resampled
+#y = object to be resampled to
+R_nightlights_resampled = resample(x = R_nightlights, y = R)
+
+R = addLayer(R, R_nightlights_resampled)
+
+#################WorldClim
+path <- "DATA/wc2.0_5m_bio/"
+
+grids <- list.files(path , pattern = "*.tif$")
+
+#create a raster stack from the input raster files 
+w <- stack(paste0(path, grids))
+
+w <- subset(w, c("wc2.0_bio_5m_01", "wc2.0_bio_5m_12"))
+names(w) = c("annualMeanTemp", "annualPrecip")
+worldclim = w
+# save(worldclim, file = "worldclim.Rdata")
+
+w = resample(x = w, y = R)
+R = addLayer(R, w)
+#################Worldclim
+
+##########mammal diversity
+rMammal = raster("Total mammal richness.gri")
+names(rMammal)= "mammalDiversity"
+
+#x = object to be resampled
+#y = object to be resampled to
+rMammalResampled = resample(x = rMammal, y = R)
+
+R = addLayer(R, rMammalResampled)
+
+##########mammal diversity
+
+#aggregate by factor of five
+R <- aggregate(R, fact=5)
+
+#convert raster to points (package raster)
+predictorPoints = rasterToPoints(R, spatial=TRUE)
+save(predictorPoints, file = "predictorPoints.Rdata")
+
+```
+
+#assign label_short describing land cover to predictorPoints
+```{r label_short_predictors}
+load("predictorPoints.Rdata")
+G_legend = read.csv("DATA/Globcover2009_V2.3_Global_/Globcover2009_Legend.csv")
+names(G_legend)[1]="globcover"
+names(predictorPoints)[names(predictorPoints)=="GLOBCOVER_L4_200901_200912_V2.3"]="globcover"
+G_legend = G_legend[,c("globcover", "label_short")]
+dim(predictorPoints)
+predictorPoints1 =  merge(predictorPoints, G_legend)
+dim(predictorPoints1)
+predictorPoints = predictorPoints1
+save(predictorPoints, file = "predictorPoints.Rdata")
+```
+
+#one-hot encode label_short describing land cover for predictorPoints
+```{r lc_one_hot_predictors}
+load("predictorPoints.Rdata")
+df = predictorPoints
+keep = names(df)
+keep = setdiff(keep, "globcover")
+df = df[,keep]
+#Converting every categorical variable to numerical using dummy variables
+dmy <- dummyVars(" ~ .", data = df,fullRank = T, sep=".")
+df_transformed <- data.frame(predict(dmy, newdata = df))
+df = df_transformed
+predictorPoints=df
+
+save(predictorPoints, file = "predictorPoints.Rdata")
+
+```
+
+###create log and fractional fields in global predictorPoints
+```{r log_fractional}
+load("predictorPoints.Rdata")
+
+df = predictorPoints
+addSmall = 0.0001
+df$log_chickens = log(df$chickens2010+addSmall)
+df$log_sheep = log(df$sheep2010+addSmall)
+df$log_goats = log(df$goats2010+addSmall)
+df$log_cattle = log(df$cattle2010+addSmall)
+df$log_pigs = log(df$pigs2010+addSmall)
+
+#assign nonzero fields
+df$pigs_nonzero = 1
+df$pigs_nonzero[df$pigs2010==0]=0
+
+df$goats_nonzero = 1
+df$goats_nonzero[df$goats2010==0]=0
+
+df$sheep_nonzero = 1
+df$sheep_nonzero[df$sheep2010==0]=0
+
+df$cattle_nonzero = 1
+df$cattle_nonzero[df$cattle2010==0]=0
+
+df$chickens_nonzero = 1
+df$chickens_nonzero[df$chickens2010==0]=0
+
+df$livestock_non_zero_fraction = (df$pigs_nonzero+
+                                    df$cattle_nonzero+
+                                    df$sheep_nonzero+
+                                    df$goats_nonzero+
+                                    df$chickens_nonzero)/5
+
+remove_fields = c("chickens2010",
+                  "sheep2010",
+                  "goats2010",
+                  "cattle2010",
+                  "pigs2010",
+                    "pigs_nonzero",
+                    "cattle_nonzero",
+                  "sheep_nonzero",
+                  "goats_nonzero",
+                  "chickens_nonzero")
+
+df$log_highway_density = log(df$highway+addSmall)
+df$log_primary_road_density = log(df$primary_roads+addSmall)
+df$log_secondary_road_density = log(df$secondary_roads+addSmall)
+df$log_tertiary_road_density = log(df$tertiary_roads+addSmall)
+df$log_local_road_density = log(df$local_roads+addSmall)
+df$logRoadDensity = log(df$RoadDensity+addSmall)
+
+remove_fields = c(remove_fields, "highway",
+                  "primary_roads",
+                  "secondary_roads",
+                  "tertiary_roads",
+                  "local_roads",
+                  "RoadDensity")
+
+names_df = names(df)
+keep_fields = setdiff(names_df, remove_fields)
+
+df = df[,keep_fields]
+
+names(df)
+predictorPoints = df
+save(predictorPoints, file = "predictorPoints.Rdata")
+```
+
+###assign country to predictorPoints
+```{r country_predictors1}
+load("predictorPoints.Rdata")
+
+r = shapefile("DATA/TM_WORLD_BORDERS-0.3/TM_WORLD_BORDERS-0.3.shp")
+
+out_spdf = predictorPoints
+coordinates(out_spdf) <- ~ x + y
+
+#predictorPoints is already a SpatialPointsDataFrame 
+projection(r) <-CRS("+proj=longlat +datum=WGS84")
+projection(out_spdf) = projection(r)
+out_spdf$country <- over(out_spdf, r)$NAME#name of park
+#make into dataframe
+df= as.data.frame(out_spdf)
+keep = names(df)
+rm_fields = c("latitude.1", "longitude.1", "ID")
+keep = setdiff(keep, rm_fields)
+df = df[,keep]
+
+#change to one-hot encoding of country
+#Converting every categorical variable to numerical using dummy variables
+dmy <- dummyVars(" ~ .", data = df,fullRank = T, sep=".")
+df_transformed <- data.frame(predict(dmy, newdata = df))
+df = df_transformed
+
+predictorPoints = df
+save(predictorPoints, file = "predictorPoints.Rdata")
+```
+
+###assign ecoregion to predictorPoints and one-hot encode it
+```{r ecoregion_predictors_one_hot}
+load("predictorPoints.Rdata")
+
+#source: http://maps.tnc.org/gis_data.html
+r = shapefile("ecoregions/tnc_terr_ecoregions.shp")
+
+out_spdf = predictorPoints
+coordinates(out_spdf) <- ~ x + y
+
+#predictorPoints is already a SpatialPointsDataFrame 
+projection(r) <-CRS("+proj=longlat +datum=WGS84")
+projection(out_spdf) = projection(r)
+out_spdf$ecoregion <- over(out_spdf, r)$ECO_NAME#name of park
+#make into dataframe
+df= as.data.frame(out_spdf)
+keep = names(df)
+rm_fields = c("latitude.1", "longitude.1", "ID")
+keep = setdiff(keep, rm_fields)
+df = df[,keep]
+
+#change to one-hot encoding of country
+#Converting every categorical variable to numerical using dummy variables
+dmy <- dummyVars(" ~ .", data = df,fullRank = T, sep=".")
+df_transformed <- data.frame(predict(dmy, newdata = df))
+df = df_transformed
+
+predictorPoints = df
+save(predictorPoints, file = "predictorPoints.Rdata")
+```
+
+
+
+
+###construct interaction features: log of the product of roadDensity and livestock density 
+```{r interaction_predictors}
+load("predictorPoints.Rdata")
+df = predictorPoints
+df$log_road_chickens = log(exp(df$logRoadDensity)*exp(df$log_chickens))
+df$log_road_pigs = log(exp(df$logRoadDensity)*exp(df$log_pigs))
+df$log_road_cattle = log(exp(df$logRoadDensity)*exp(df$log_cattle))
+df$log_road_sheep = log(exp(df$logRoadDensity)*exp(df$log_sheep))
+df$log_road_goats = log(exp(df$logRoadDensity)*exp(df$log_goats))
+predictorPoints = df
+save(predictorPoints, file = "predictorPoints.Rdata")
+```
+
+
+Add fields to predictorPoints latitude_10 (nearest top 10 degree) and longitude_10 (left 10 degree). Resave predictorPoints.Rdata
+```{r deforestation}
+source("deforestation_predictors.R")
+```
+
+For each 10X10 degree quadrant of outbreak presence / absence data, download relevant tile of deforestation data, and extract deforestation data. Use as input predictorPoints.Rdata. Save out_deforest.  
+```{r getdef}
+source("getdef_predictors.R")
+```
+
+Add field indicating whether location has been deforested or not. Input out_deforest. Make graphs of deforest vs. no for outbreak vs. background locations. Input "predictorPoints"
+```{r deforest_binary}
+source("deforest_binary_year_predictors.R")
+```
+
+
+
+
+###fix column names in predictorPoints to match names in Train
+```{r}
+load("predictorPoints.Rdata")
+group = c(names(predictorPoints))
+
+group = gsub("[.]","", group)
+names(predictorPoints)=group
+save(predictorPoints, file = "predictorPoints.Rdata")
+#check = "country."
+# a = 1
+# namesOutput = group
+# for (a in 1:length(group)){
+#   test = c(as.character(names(dfPredictors)[a]))
+#   #test = "aa.bb"
+#   test_period = strsplit(test, check)
+#     if(unique(test_period[[1]])==""){
+#  #   if (test_period[[1]][1]==""){
+#     namesOutput[a]=test
+#     print("empty")
+#   } else {
+#      test_out = str_replace(test, check, "")
+#     namesOutput[a]=test_out   
+#   }
+  #splitted_count = length(test_period[[1]])
+  #test_out= test
+  #print(test_out)
+  #if (splitted_count>1){
+  #  test_out = str_replace_all(test_out, check, "")
+    #test_out = gsub(".", "", test_out)
+  #}
+  #namesOutput[a]=test_out
+  
+# }
+# 
+# namesOutput
+# 'e' %in% test[1]
+# match('_',test)
+# 
+# is.element('_', test)
+# 
+# any("livestock_system"=="e")
+
+# test_period = strsplit(test, "_")
+# 
+# 
+# str_replace_all(names(dfPredictors)[1], ".", "")
+# group = gsub(".", "", group)
+# names(dfPredictors)=group
+# names(dfPredictors)
+
+```
+
+
+###plot predictions
+##need to redo this including land cover
+```{r predictions_plot}
+load("predictorPoints.Rdata")
+load("TrainLivestock.Rdata")
+names(predictorPoints)[names(predictorPoints)=="label_shortNodataburntareascloudsâ"]="label_shortNodataburntareasclouds"
+load("gbmtestLivestock.Rdata")
+names_missing = setdiff(names(Train), names(predictorPoints))
+names_missing = setdiff(names_missing, "case")
+#for each missing name, add a field set to zero for that field
+for (a in 1:length(names_missing)){
+  predictorPoints[,names_missing[a]]=0
+}
+#predictorPoints$countryAndorra = 0
+best.iter <- gbm.perf(gbmtest,method="cv",plot.it=FALSE) #this gives you the optimal number of trees based on cv 
+n.trees = best.iter
+
+sdf = predictorPoints
+sdf = subset(sdf, !is.na(log_cattle))
+dim(sdf)[1]
+sdf = subset(sdf, !is.na(logRoadDensity))
+sdf = subset(sdf, livestock_system != 15)
+dim(sdf)[1]
+
+sdf_pred = predict.gbm(gbmtest, newdata = sdf, n.trees=n.trees, type = "response")
+  sdf$predicted= sdf_pred
+  pred_gbm_season = sdf
+  pred_gbm_season=data.frame(pred_gbm_season)
+
+#coordinates(pred_gbm_season) <- ~x+y
+
+#world <- map_data("world")
+world <- borders("world", ylim = c(-60,80))
+
+
+mp<- ggplot()+world
+
+    mp <- mp+
+   geom_tile(data = pred_gbm_season, aes(x = x, y = y, alpha = predicted))
+  ggsave("predictedLivestock.jpg", plot = mp, height = 7, width = 7*2)
+  
+pred.xy = pred_gbm_season[,c("x", "y", "predicted")]
+
+out_spdf = SpatialPointsDataFrame(coords = pred.xy[,c("x", "y")], 
+                               data = pred.xy)
+
+gridded(out_spdf) <- TRUE
+out_spdf$z = out_spdf$predicted
+dfPredictors_predicted = out_spdf
+save(dfPredictors_predicted, file = "dfPredictors_predicted.Rdata")
+dfr = raster(out_spdf)
+
+writeRaster(dfr, "prediction_no_naLivestock.tif", format="GTiff", overwrite=TRUE)
+
+
+```
+
+###load in prediction values and observed locations. Find locations with high predicted probability but no outbreaks  yet observed
+```{r get_minimum_distances}
+rm(list=ls())
+load("dfPredictors_predicted.Rdata")
+# load("dfLivestock.Rdata")
+load("dfRoad.Rdata")
+obs = dfRoad
+obs = subset(obs, case == 1)
+dfpred = dfPredictors_predicted
+dfpred_hi = subset(dfpred, predicted>=0.5)
+dim(dfpred_hi)
+#https://stackoverflow.com/questions/21977720/r-finding-closest-neighboring-point-and-number-of-neighbors-within-a-given-rad
+#coordinates(dfpred_hi) <- ~x+y
+coordinates(obs) <- ~longitude+latitude
+library(rgeos)
+#convert to data frame
+dfpred_hi_df = data.frame(dfpred_hi)
+
+dfpred_hi_pts = SpatialPointsDataFrame(dfpred_hi, dfpred_hi_df)
+
+#dfpred_hi_pts = dfpred_hi_pts[1,]
+
+#Start the clock
+
+nrows = dim(dfpred_hi_df)[1]
+distances = rep(NA, nrows)
+a = 1
+a = 2
+ptm<-proc.time()
+
+#for (a in 1){
+for (a in 1:nrows){
+  print(a)
+  tmp = dfpred_hi_pts[a,]
+  distances[a] = gDistance(tmp, obs, byid=FALSE)#specify byid=FALSE in order
+  # to get the minimum distance
+}
+ 
+#Stop the clock
+(proc.time()-ptm)/60
+
+#save(distances, file = "distances.Rdata")
+dfpred_hi_pts$minimum_distance = distances
+save(dfpred_hi_pts, file = "dfpred_hi_pts.Rdata")
+
+
+```
+
+
+
+###SCRATCH below here.
+
+###format date for python
+```{r}
+
+# load("dfRoads.Rdata")
+# df = dfRoads
+# is.na.date = which(is.na(df$date))
+# #fix date that has weird format
+# df$date[is.na.date]= as.Date(df$reportingDate[is.na.date], format = "%d/%m/%Y")
+# df$month = month(df$date)
+# is.na.month = which(is.na(df$month))#should be empty
+# 
+# #beginning of the year
+# df$year_begin = paste0(df$year,"0101")
+# #beginning of the previous year
+# df$previous_year_begin = paste0(df$year-1,"0101")
+# #next year beginning
+# df$next_year_begin = paste0(df$year+1,"0101")
+# dfDate = df
+# save(dfDate, file = "dfDate.Rdata")
+
+```
+
+```{r}
+#https://trucvietle.me/r/tutorial/2017/01/18/spatial-heat-map-plotting-using-r.html
+# m <- ggplot(faithful, aes(x = eruptions, y = waiting)) +
+#  geom_point() +
+#  xlim(0.5, 6) +
+#  ylim(40, 110)
+# m + geom_density_2d()
+# m+ stat_density_2d(aes(fill = stat(level)), geom = "polygon")
+
+```
+
+###plot density 
+```{r}
+
+# load("dfRoads.Rdata")
+# df = dfRoads
+# df = df[,c("latitude", "longitude")]
+# m <- ggplot(df, aes(x = longitude, y = latitude)) +
+#  geom_point() 
+#  # xlim(0.5, 6) +
+#  # ylim(40, 110)
+# m + geom_density_2d()
+# m+ stat_density_2d(aes(fill = stat(level)), geom = "polygon")
+
+```
+
+####interpolation with kriging
+###https://rpubs.com/nabilabd/118172
+```{r}
+
+# load("dfRoads.Rdata")
+# df = dfRoads
+# library(sp)
+# library(gstat)
+# suppressPackageStartupMessages({
+#   library(dplyr) # for "glimpse"
+#   library(ggplot2)
+#   library(scales) # for "comma"
+#   library(magrittr)
+# })
+# 
+# #1) Converting to an SPDF
+# coordinates(df) <- ~ longitude + latitude
+# #2) Fitting a variogram
+# lzn.vgm <- variogram(case~1, df) # calculates sample variogram values 
+# lzn.fit <- fit.variogram(lzn.vgm, model=vgm(1, "Sph", 900, 1)) # fit model
+
+```
+
