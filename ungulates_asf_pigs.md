@@ -275,7 +275,7 @@ df_sum <- df %>%
 df_sum
 ```
 
-    ## # A tibble: 20 x 2
+    ## # A tibble: 19 x 2
     ##     year count
     ##    <dbl> <int>
     ##  1  1996     1
@@ -288,16 +288,39 @@ df_sum
     ##  8  2008     6
     ##  9  2009     2
     ## 10  2010     9
-    ## 11  2011     9
+    ## 11  2011    11
     ## 12  2012     4
-    ## 13  2013     5
+    ## 13  2013     6
     ## 14  2014     8
     ## 15  2015     9
-    ## 16  2016    10
+    ## 16  2016    11
     ## 17  2017    13
     ## 18  2018    14
     ## 19  2019    20
-    ## 20    NA    15
+
+### Check if Russia, China reporting
+
+``` r
+load("E.Rdata")
+df_C= subset(E, country == "China")
+dim(df_C)
+```
+
+    ## [1] 144  27
+
+``` r
+unique(df_C$year)
+```
+
+    ## [1] 2018 2019
+
+``` r
+test = subset(df_C, is.na(year))
+df_R= subset(E, country == "Russian Federation")
+unique(df_R$year)
+```
+
+    ##  [1] 2018 2017 2016 2015 2014 2013 2012 2011 2010 2009 2008 2007 2019
 
 #### Parse species field
 
@@ -9041,7 +9064,7 @@ for (a in 1:length(uspecies)){
 
     ## [1] 1
 
-    ## Warning in .local(x, p, ...): 5 (27.78%) of the presence points have NA
+    ## Warning in .local(x, p, ...): 5 (29.41%) of the presence points have NA
     ## predictor values
 
     ## Loading required namespace: rJava
@@ -9938,177 +9961,176 @@ print(model)
     ##     Ornithodorossavignyi + Ornithodorosmacmillani + Carioserraticus + 
     ##     Ornithodorostholozani + annualMeanTemp + annualPrecip + countryAlgeria + 
     ##     countryAngola + countryArgentina + countryArmenia + countryAustralia + 
-    ##     countryAzerbaijan + countryBelarus + countryBenin + countryBhutan + 
-    ##     countryBolivia + countryBrazil + countryBulgaria + countryBurkinaFaso + 
-    ##     countryBurma + countryCambodia + countryCameroon + countryCanada + 
-    ##     countryCapeVerde + countryCentralAfricanRepublic + countryChad + 
-    ##     countryChile + countryChina + countryColombia + countryCotedIvoire + 
-    ##     countryDemocraticRepublicoftheCongo + countryEgypt + countryEquatorialGuinea + 
-    ##     countryEritrea + countryEstonia + countryEthiopia + countryFinland + 
-    ##     countryFrance + countryFrenchGuiana + countryGabon + countryGeorgia + 
-    ##     countryGhana + countryGreenland + countryGuinea + countryGuyana + 
-    ##     countryHaiti + countryHungary + countryIndia + countryIndonesia + 
-    ##     countryIranIslamicRepublicof + countryIraq + countryIreland + 
-    ##     countryItaly + countryJapan + countryKazakhstan + countryKenya + 
-    ##     countryKoreaDemocraticPeoplesRepublicof + countryKoreaRepublicof + 
+    ##     countryAustria + countryAzerbaijan + countryBelarus + countryBenin + 
+    ##     countryBhutan + countryBolivia + countryBotswana + countryBrazil + 
+    ##     countryBulgaria + countryBurkinaFaso + countryBurma + countryCambodia + 
+    ##     countryCameroon + countryCanada + countryCapeVerde + countryCentralAfricanRepublic + 
+    ##     countryChad + countryChile + countryChina + countryColombia + 
+    ##     countryCongo + countryCostaRica + countryCotedIvoire + countryCroatia + 
+    ##     countryCzechRepublic + countryDemocraticRepublicoftheCongo + 
+    ##     countryEcuador + countryEgypt + countryEstonia + countryEthiopia + 
+    ##     countryFinland + countryFrance + countryGabon + countryGambia + 
+    ##     countryGeorgia + countryGermany + countryGreece + countryGreenland + 
+    ##     countryGuinea + countryIndia + countryIndonesia + countryIranIslamicRepublicof + 
+    ##     countryIraq + countryIsrael + countryItaly + countryJapan + 
+    ##     countryKazakhstan + countryKenya + countryKoreaDemocraticPeoplesRepublicof + 
     ##     countryKyrgyzstan + countryLaoPeoplesDemocraticRepublic + 
-    ##     countryLatvia + countryLiberia + countryLibyanArabJamahiriya + 
-    ##     countryLithuania + countryMadagascar + countryMalaysia + 
-    ##     countryMali + countryMauritania + countryMauritius + countryMexico + 
-    ##     countryMongolia + countryMorocco + countryMozambique + countryNamibia + 
-    ##     countryNewZealand + countryNicaragua + countryNiger + countryNigeria + 
-    ##     countryNorway + countryOman + countryPakistan + countryParaguay + 
-    ##     countryPeru + countryPhilippines + countryPoland + countryPortugal + 
-    ##     countryPuertoRico + countryQatar + countryRomania + countryRussia + 
-    ##     countrySaudiArabia + countrySomalia + countrySouthAfrica + 
-    ##     countrySpain + countrySudan + countrySuriname + countrySvalbard + 
-    ##     countrySweden + countrySyrianArabRepublic + countryTajikistan + 
-    ##     countryThailand + countryTogo + countryTurkey + countryTurkmenistan + 
-    ##     countryUganda + countryUkraine + countryUnitedKingdom + countryUnitedRepublicofTanzania + 
-    ##     countryUnitedStates + countryUzbekistan + countryVenezuela + 
-    ##     countryVietNam + countryZambia + countryZimbabwe + ecoregionAlaskaYukonArctic + 
-    ##     ecoregionAltaiAlpineMeadowAndTundra + ecoregionAltaiMontaneForestAndForestSteppe + 
-    ##     ecoregionAltaiSteppeAndSemiDesert + ecoregionAltoParanÃAtlanticForests + 
+    ##     countryLatvia + countryLibyanArabJamahiriya + countryLithuania + 
+    ##     countryMadagascar + countryMalaysia + countryMali + countryMauritania + 
+    ##     countryMauritius + countryMexico + countryMongolia + countryMontenegro + 
+    ##     countryMorocco + countryMozambique + countryNamibia + countryNepal + 
+    ##     countryNewZealand + countryNiger + countryNigeria + countryNorway + 
+    ##     countryPakistan + countryPanama + countryPapuaNewGuinea + 
+    ##     countryParaguay + countryPeru + countryPhilippines + countryPoland + 
+    ##     countryRussia + countrySaudiArabia + countrySlovakia + countrySomalia + 
+    ##     countrySouthAfrica + countrySouthGeorgiaSouthSandwichIslands + 
+    ##     countrySpain + countrySudan + countrySvalbard + countrySweden + 
+    ##     countrySwitzerland + countryTaiwan + countryThailand + countryTogo + 
+    ##     countryTunisia + countryTurkmenistan + countryUganda + countryUkraine + 
+    ##     countryUnitedRepublicofTanzania + countryUnitedStates + countryUzbekistan + 
+    ##     countryVenezuela + countryVietNam + countryWesternSahara + 
+    ##     countryYemen + countryZambia + countryZimbabwe + ecoregionAlaskaYukonArctic + 
+    ##     ecoregionAlaskaRange + ecoregionAlpsConiferAndMixedForests + 
+    ##     ecoregionAltaiMontaneForestAndForestSteppe + ecoregionAltoParanÃAtlanticForests + 
     ##     ecoregionAngolanMiomboWoodlands + ecoregionAngolanMopaneWoodlands + 
     ##     ecoregionArabianDesertAndEastSaheroArabianXericShrublands + 
-    ##     ecoregionAraucariaMoistForests + ecoregionArayaAndPariaXericScrub + 
-    ##     ecoregionArcticCordillera + ecoregionArcticDesert + ecoregionArnhemLandTropicalSavanna + 
-    ##     ecoregionAtlanticMixedForests + ecoregionAustralianAlpsMontaneGrasslands + 
-    ##     ecoregionAzerbaijanShrubDesertAndSteppe + ecoregionBadghyzAndKarabilSemiDesert + 
-    ##     ecoregionBahiaInteriorForests + ecoregionBalkanMixedForests + 
+    ##     ecoregionArcticCordillera + ecoregionArcticDesert + ecoregionArizonaNewMexicoMountains + 
+    ##     ecoregionArnhemLandTropicalSavanna + ecoregionAtacamaDesert + 
+    ##     ecoregionAtlanticEquatorialCoastalForests + ecoregionAzerbaijanShrubDesertAndSteppe + 
+    ##     ecoregionBadghyzAndKarabilSemiDesert + ecoregionBahiaInteriorForests + 
     ##     ecoregionBalsasDryForests + ecoregionBaluchistanXericWoodlands + 
-    ##     ecoregionBeniSavanna + ecoregionBeringTundra + ecoregionBeringianTundra + 
-    ##     ecoregionBolivianYungas + ecoregionBorealCordillera + ecoregionBorealPlains + 
-    ##     ecoregionBorealShield + ecoregionBorneoLowlandRainForests + 
-    ##     ecoregionBrigalowTropicalSavanna + ecoregionBristolBayBasin + 
-    ##     ecoregionCaatinga + ecoregionCanadianRockyMountains + ecoregionCanteburyOtagoTussockGrasslands + 
-    ##     ecoregionCapeVerdeIslandsDryForests + ecoregionCapeYorkPeninsulaTropicalSavanna + 
-    ##     ecoregionCaspianLowlandDesert + ecoregionCaucasusMixedForests + 
-    ##     ecoregionCelticBroadleafForests + ecoregionCentralAfghanMountainsXericWoodlands + 
+    ##     ecoregionBeringTundra + ecoregionBeringianTundra + ecoregionBolivianYungas + 
+    ##     ecoregionBorealCordillera + ecoregionBorealPlains + ecoregionBorealShield + 
+    ##     ecoregionBorneoLowlandRainForests + ecoregionBorneoMontaneRainForests + 
+    ##     ecoregionBrigalowTropicalSavanna + ecoregionCaatinga + ecoregionCaliforniaSouthCoast + 
+    ##     ecoregionCanadianRockyMountains + ecoregionCapeVerdeIslandsDryForests + 
+    ##     ecoregionCaquetaMoistForests + ecoregionCaspianLowlandDesert + 
+    ##     ecoregionCaucasusMixedForests + ecoregionCentralAndeanDryPuna + 
     ##     ecoregionCentralAndeanPuna + ecoregionCentralAndeanWetPuna + 
-    ##     ecoregionCentralAppalachianForest + ecoregionCentralAsianNorthernDesert + 
+    ##     ecoregionCentralAsianNorthernDesert + ecoregionCentralAsianRiparianWoodlands + 
     ##     ecoregionCentralAsianSouthernDesert + ecoregionCentralChinaLoessPlateauMixedForests + 
-    ##     ecoregionCentralCongolianLowlandForests + ecoregionCentralDeccanPlateauDryDeciduousForests + 
-    ##     ecoregionCentralEuropeanMixedForests + ecoregionCentralIndochinaDryForests + 
-    ##     ecoregionCentralKoreanDeciduousForests + ecoregionCentralMixedGrassPrairie + 
-    ##     ecoregionCentralPersianDesertBasins + ecoregionCentralRangesXericScrub + 
-    ##     ecoregionCentralTallgrassPrairie + ecoregionCentralTibetanPlateauAlpineSteppe + 
-    ##     ecoregionCentralZambezianMiomboWoodlands + ecoregionCerrado + 
-    ##     ecoregionChangbaiMountainsMixedForests + ecoregionChangjiangPlainEvergreenForests + 
-    ##     ecoregionCherskiiKolymaMountainTundra + ecoregionChiapasDepressionDryForests + 
-    ##     ecoregionChihuahuanDesert + ecoregionChiquitanoDryForests + 
-    ##     ecoregionChocÃ³DariÃnMoistForests + ecoregionChukchiPeninsulaTundra + 
-    ##     ecoregionColoradoPlateau + ecoregionColumbiaPlateau + ecoregionCordilleraOrientalMontaneForests + 
-    ##     ecoregionCrimeanSubmediterraneanForestComplex + ecoregionCrossSanagaBiokoCoastalForests + 
-    ##     ecoregionCumberlandsAndSouthernRidgeAndValley + ecoregionDaHingganDzhagdyMountainsConiferForests + 
-    ##     ecoregionDabaMountainsEvergreenForests + ecoregionDakotaMixedGrassPrairie + 
-    ##     ecoregionDaurianForestSteppe + ecoregionDeccanThornScrubForests + 
-    ##     ecoregionDrakensbergAltiMontaneGrasslandsAndWoodlands + ecoregionDrakensbergMontaneGrasslandsWoodlandsAndForests + 
+    ##     ecoregionCentralCongolianLowlandForests + ecoregionCentralEuropeanMixedForests + 
+    ##     ecoregionCentralIndochinaDryForests + ecoregionCentralPersianDesertBasins + 
+    ##     ecoregionCentralRangeMontaneRainForests + ecoregionCentralRangesXericScrub + 
+    ##     ecoregionCentralShortgrassPrairie + ecoregionCentralTallgrassPrairie + 
+    ##     ecoregionCentralTibetanPlateauAlpineSteppe + ecoregionCentralZambezianMiomboWoodlands + 
+    ##     ecoregionCerrado + ecoregionChangbaiMountainsMixedForests + 
+    ##     ecoregionChangjiangPlainEvergreenForests + ecoregionCherskiiKolymaMountainTundra + 
+    ##     ecoregionChihuahuanDesert + ecoregionChukchiPeninsulaTundra + 
+    ##     ecoregionColoradoPlateau + ecoregionColumbiaPlateau + ecoregionCoolgardieWoodlands + 
+    ##     ecoregionCordilleraDeMeridaPÃramo + ecoregionCostaRicanSeasonalMoistForests + 
+    ##     ecoregionCreteMediterraneanForests + ecoregionCrimeanSubmediterraneanForestComplex + 
+    ##     ecoregionDaHingganDzhagdyMountainsConiferForests + ecoregionDabaMountainsEvergreenForests + 
+    ##     ecoregionDakotaMixedGrassPrairie + ecoregionDaurianForestSteppe + 
+    ##     ecoregionDeccanThornScrubForests + ecoregionDinaricMountainsMixedForests + 
     ##     ecoregionDryChaco + ecoregionEastAfricanMontaneForests + 
     ##     ecoregionEastEuropeanForestSteppe + ecoregionEastSiberianTaiga + 
     ##     ecoregionEastSudanianSavanna + ecoregionEasternAnatolianMontaneSteppe + 
-    ##     ecoregionEasternAustralianTemperateForests + ecoregionEasternCongolianSwampForests + 
-    ##     ecoregionEasternGobiDesertSteppe + ecoregionEasternGuineanForests + 
-    ##     ecoregionEasternHighlandsMoistDeciduousForests + ecoregionEasternHimalayanAlpineShrubAndMeadows + 
-    ##     ecoregionEasternMediterraneanConiferSclerophyllousBroadleafForests + 
-    ##     ecoregionEasternMiomboWoodlands + ecoregionEasternTaigaShield + 
-    ##     ecoregionElburzRangeForestSteppe + ecoregionEminValleySteppe + 
-    ##     ecoregionEsperanceMallee + ecoregionEspinal + ecoregionEthiopianMontaneGrasslandsAndWoodlands + 
-    ##     ecoregionEuxineColchicBroadleafForests + ecoregionFescueMixedGrassPrairie + 
-    ##     ecoregionFloridaPeninsula + ecoregionGhoratHazarajatAlpineMeadow + 
-    ##     ecoregionGissaroAlaiOpenWoodlands + ecoregionGobiLakesValleyDesertSteppe + 
-    ##     ecoregionGreatBasin + ecoregionGreatLakesBasinDesertSteppe + 
-    ##     ecoregionGreatSandyTanamiDesert + ecoregionGreatVictoriaDesert + 
-    ##     ecoregionGreaterNegrosPanayRainForests + ecoregionGuiananMoistForests + 
-    ##     ecoregionGuiananPiedmontAndLowlandMoistForests + ecoregionGuineanForestSavannaMosaic + 
-    ##     ecoregionGuizhouPlateauBroadleafAndMixedForests + ecoregionGulfOfAlaskaMountainsAndFjordlands + 
-    ##     ecoregionHainanIslandMonsoonRainForests + ecoregionHighMonte + 
-    ##     ecoregionHighveldGrasslands + ecoregionHispaniolanMoistForests + 
+    ##     ecoregionEasternAustraliaMulgaShrublands + ecoregionEasternAustralianTemperateForests + 
+    ##     ecoregionEasternCordilleraRealMontaneForests + ecoregionEasternGobiDesertSteppe + 
+    ##     ecoregionEasternHighlandsMoistDeciduousForests + ecoregionEasternMiomboWoodlands + 
+    ##     ecoregionEasternTaigaShield + ecoregionEdwardsPlateau + ecoregionEspinal + 
+    ##     ecoregionEthiopianMontaneForests + ecoregionEthiopianMontaneGrasslandsAndWoodlands + 
+    ##     ecoregionEthiopianXericGrasslandsAndShrublands + ecoregionEuxineColchicBroadleafForests + 
+    ##     ecoregionFescueMixedGrassPrairie + ecoregionGibsonDesert + 
+    ##     ecoregionGissaroAlaiOpenWoodlands + ecoregionGreatBasin + 
+    ##     ecoregionGreatLakes + ecoregionGreatSandyTanamiDesert + ecoregionGreatVictoriaDesert + 
+    ##     ecoregionGuineanForestSavannaMosaic + ecoregionGuizhouPlateauBroadleafAndMixedForests + 
+    ##     ecoregionGulfOfAlaskaMountainsAndFjordlands + ecoregionGulfOfCaliforniaXericScrub + 
+    ##     ecoregionHelanshanMontaneConiferForests + ecoregionHengduanMountainsSubalpineConiferForests + 
+    ##     ecoregionHighAlleghenyPlateau + ecoregionHighveldGrasslands + 
+    ##     ecoregionHimalayanSubtropicalPineForests + ecoregionHinduKushAlpineMeadow + 
+    ##     ecoregionHokkaidoDeciduousForests + ecoregionHokkaidoMontaneConiferForests + 
     ##     ecoregionHuangHePlainMixedForests + ecoregionHudsonPlains + 
-    ##     ecoregionHumidChaco + ecoregionHumidPampas + ecoregionIberianSclerophyllousAndSemiDeciduousForests + 
-    ##     ecoregionInteriorAlaskaTaiga + ecoregionInteriorLowPlateau + 
-    ##     ecoregionIrrawaddyDryForests + ecoregionIrrawaddyMoistDeciduousForests + 
-    ##     ecoregionJapurÃSolimoesNegroMoistForests + ecoregionJianNanSubtropicalEvergreenForests + 
-    ##     ecoregionJunggarBasinSemiDesert + ecoregionJuruÃPurusMoistForests + 
-    ##     ecoregionKalaallitNunaatHighArcticTundra + ecoregionKalaallitNunaatLowArcticTundra + 
-    ##     ecoregionKalahariAcaciaBaikiaeaWoodlands + ecoregionKalahariXericSavanna + 
-    ##     ecoregionKamchatkaMountainTundraAndForestTundra + ecoregionKayahKarenMontaneRainForests + 
+    ##     ecoregionHumidChaco + ecoregionHumidPampas + ecoregionIberianConiferForests + 
+    ##     ecoregionIberianSclerophyllousAndSemiDeciduousForests + ecoregionInteriorAlaskaTaiga + 
+    ##     ecoregionInteriorLowPlateau + ecoregionIsthmianPacificMoistForests + 
+    ##     ecoregionJianNanSubtropicalEvergreenForests + ecoregionJunggarBasinSemiDesert + 
+    ##     ecoregionKalaallitNunaatLowArcticTundra + ecoregionKalahariAcaciaBaikiaeaWoodlands + 
+    ##     ecoregionKalahariXericSavanna + ecoregionKamchatkaKurileMeadowsAndSparseForests + 
     ##     ecoregionKazakhForestSteppe + ecoregionKazakhSemiDesert + 
     ##     ecoregionKazakhSteppe + ecoregionKazakhUpland + ecoregionKhathiarGirDryDeciduousForests + 
     ##     ecoregionKimberlyTropicalSavanna + ecoregionKolaPeninsulaTundra + 
-    ##     ecoregionKopetDagWoodlandsAndForestSteppe + ecoregionLakePalearctic + 
-    ##     ecoregionLesserSundasDeciduousForests + ecoregionLlanos + 
-    ##     ecoregionLowerNewEnglandNorthernPiedmont + ecoregionLuzonRainForests + 
-    ##     ecoregionMadagascarSubhumidForests + ecoregionMadeiraTapajÃ³sMoistForests + 
-    ##     ecoregionMagdalenaUrabÃMoistForests + ecoregionMagellanicSubpolarForests + 
-    ##     ecoregionManchurianMixedForests + ecoregionMasaiXericGrasslandsAndShrublands + 
-    ##     ecoregionMascareneForests + ecoregionMatoGrossoSeasonalForests + 
-    ##     ecoregionMediterraneanWoodlandsAndForests + ecoregionMeghalayaSubtropicalForests + 
-    ##     ecoregionMesoamericanGulfCaribbeanMangroves + ecoregionMesopotamianShrubDesert + 
-    ##     ecoregionMidAtlanticCoastalPlain + ecoregionMiddleRockiesBlueMountains + 
-    ##     ecoregionMizoramManipurKachinRainForests + ecoregionMongolianManchurianGrassland + 
-    ##     ecoregionMonteAlegreVarzeÃ + ecoregionMurrayDarlingWoodlandsAndMallee + 
-    ##     ecoregionNamaKaroo + ecoregionNigerianLowlandForests + ecoregionNihonkaiMontaneDeciduousForests + 
-    ##     ecoregionNileDeltaFloodedSavanna + ecoregionNorthCascades + 
+    ##     ecoregionKopetDagSemiDesert + ecoregionKopetDagWoodlandsAndForestSteppe + 
+    ##     ecoregionLaCostaXericShrublands + ecoregionLakeAfrotropic + 
+    ##     ecoregionLakePalearctic + ecoregionLowMonte + ecoregionLuangPrabangMontaneRainForests + 
+    ##     ecoregionLuzonMontaneRainForests + ecoregionMadagascarLowlandForests + 
+    ##     ecoregionMadeiraTapajÃ³sMoistForests + ecoregionMagdalenaValleyMontaneForests + 
+    ##     ecoregionMagellanicSubpolarForests + ecoregionManchurianMixedForests + 
+    ##     ecoregionMaraÃÃ³nDryForests + ecoregionMarajÃ³VarzeÃ + ecoregionMascareneForests + 
+    ##     ecoregionMatoGrossoSeasonalForests + ecoregionMediterraneanConiferAndMixedForests + 
+    ##     ecoregionMediterraneanDryWoodlandsAndSteppe + ecoregionMediterraneanWoodlandsAndForests + 
+    ##     ecoregionMesopotamianShrubDesert + ecoregionMindanaoEasternVisayasRainForests + 
+    ##     ecoregionMindanaoMontaneRainForests + ecoregionMitchellGrassDowns + 
+    ##     ecoregionMojaveDesert + ecoregionMongolianManchurianGrassland + 
+    ##     ecoregionMontaneCordillera + ecoregionMurrayDarlingWoodlandsAndMallee + 
+    ##     ecoregionNamaKaroo + ecoregionNamibDesert + ecoregionNamibianSavannaWoodlands + 
+    ##     ecoregionNapoMoistForests + ecoregionNarmadaValleyDryDeciduousForests + 
+    ##     ecoregionNegroBrancoMoistForests + ecoregionNewBritainNewIrelandMontaneRainForests + 
+    ##     ecoregionNigerianLowlandForests + ecoregionNorthCascades + 
+    ##     ecoregionNorthCentralTillplain + ecoregionNorthIslandTemperateForests + 
     ##     ecoregionNorthSaharanSteppeAndWoodlands + ecoregionNorthTibetanPlateauKunlunMountainsAlpineDesert + 
-    ##     ecoregionNortheastChinaPlainDeciduousForests + ecoregionNortheastSiberianCoastalTundra + 
-    ##     ecoregionNortheastSiberianTaiga + ecoregionNortheasternCongolianLowlandForests + 
-    ##     ecoregionNorthernAcaciaCommiphoraBushlandsAndThickets + ecoregionNorthernAppalachianAcadian + 
-    ##     ecoregionNorthernArctic + ecoregionNorthernCongolianForestSavannaMosaic + 
-    ##     ecoregionNorthernGreatPlainsSteppe + ecoregionNorthernIndochinaSubtropicalForests + 
-    ##     ecoregionNorthernTallgrassPrairie + ecoregionNorthernThailandLaosMoistDeciduousForests + 
-    ##     ecoregionNorthernZanzibarInhambaneCoastalForestMosaic + ecoregionNorthlandTemperateKauriForests + 
-    ##     ecoregionNorthwestRussianNovayaZemlyaTundra + ecoregionNorthwesternCongolianLowlandForests + 
-    ##     ecoregionOkhotskManchurianTaiga + ecoregionOrdosPlateauSteppe + 
-    ##     ecoregionOsagePlainsFlintHillsPrairie + ecoregionOzarks + 
-    ##     ecoregionPacificNorthwestCoast + ecoregionPannonianMixedForests + 
-    ##     ecoregionParanÃFloodedSavanna + ecoregionPatagonianSteppe + 
-    ##     ecoregionPeninsularMalaysianMontaneRainForests + ecoregionPeninsularMalaysianRainForests + 
-    ##     ecoregionPeruvianYungas + ecoregionPiedmont + ecoregionPilbaraShrublands + 
-    ##     ecoregionPonticSteppe + ecoregionPrairieForestBorder + ecoregionPuertoRicanMoistForests + 
-    ##     ecoregionPyreneesConiferAndMixedForests + ecoregionRedSeaNuboSindianTropicalDesertAndSemiDesert + 
-    ##     ecoregionRockAndIceNearctic + ecoregionSaharaDesert + ecoregionSaharanFloodedGrasslands + 
-    ##     ecoregionSaharanHalophytics + ecoregionSahelianAcaciaSavanna + 
-    ##     ecoregionSarmaticMixedForests + ecoregionSayanAlpineMeadowsAndTundra + 
-    ##     ecoregionSayanMontaneConiferForests + ecoregionScandinavianAndRussianTaiga + 
-    ##     ecoregionScandinavianMontaneBirchForestAndGrasslands + ecoregionSechuraDesert + 
-    ##     ecoregionSerraDoMarCoastalForests + ecoregionSierraMadreOccidentalPineOakForests + 
-    ##     ecoregionSimpsonDesert + ecoregionSomaliAcaciaCommiphoraBushlandsAndThickets + 
-    ##     ecoregionSonoranDesert + ecoregionSouthChinaVietnamSubtropicalEvergreenForests + 
+    ##     ecoregionNorthWesternGhatsMoistDeciduousForests + ecoregionNortheastChinaPlainDeciduousForests + 
+    ##     ecoregionNortheastSiberianCoastalTundra + ecoregionNortheastSiberianTaiga + 
+    ##     ecoregionNortheasternCongolianLowlandForests + ecoregionNorthernAcaciaCommiphoraBushlandsAndThickets + 
+    ##     ecoregionNorthernAppalachianAcadian + ecoregionNorthernArctic + 
+    ##     ecoregionNorthernCongolianForestSavannaMosaic + ecoregionNorthernGreatPlainsSteppe + 
+    ##     ecoregionNorthernIndochinaSubtropicalForests + ecoregionNorthernTallgrassPrairie + 
+    ##     ecoregionNorthernThailandLaosMoistDeciduousForests + ecoregionNorthernZanzibarInhambaneCoastalForestMosaic + 
+    ##     ecoregionNorthwestRussianNovayaZemlyaTundra + ecoregionNorthwesternAndeanMontaneForests + 
+    ##     ecoregionNorthwesternCongolianLowlandForests + ecoregionNorthwesternThornScrubForests + 
+    ##     ecoregionNullarborPlainsXericShrublands + ecoregionOkanagan + 
+    ##     ecoregionOkhotskManchurianTaiga + ecoregionOuachitaMountains + 
+    ##     ecoregionOzarks + ecoregionPacificNorthwestCoast + ecoregionPamirAlpineDesertAndTundra + 
+    ##     ecoregionPannonianMixedForests + ecoregionPantanal + ecoregionParopamisusXericWoodlands + 
+    ##     ecoregionPatagonianSteppe + ecoregionPiedmont + ecoregionPilbaraShrublands + 
+    ##     ecoregionPonticSteppe + ecoregionPrairieForestBorder + ecoregionPurusMadeiraMoistForests + 
+    ##     ecoregionPyreneesConiferAndMixedForests + ecoregionQaidamBasinSemiDesert + 
+    ##     ecoregionQinLingMountainsDeciduousForests + ecoregionRedSeaNuboSindianTropicalDesertAndSemiDesert + 
+    ##     ecoregionRegistanNorthPakistanSandyDesert + ecoregionRioNegroCampinarana + 
+    ##     ecoregionRockAndIceNearctic + ecoregionRockAndIceNeotropic + 
+    ##     ecoregionRodopeMontaneMixedForests + ecoregionSEAlaskaBCCoastalForestAndMountains + 
+    ##     ecoregionSaharaDesert + ecoregionSahelianAcaciaSavanna + 
+    ##     ecoregionSarmaticMixedForests + ecoregionSayanMontaneConiferForests + 
+    ##     ecoregionScandinavianAndRussianTaiga + ecoregionScandinavianMontaneBirchForestAndGrasslands + 
+    ##     ecoregionScotiaSeaIslandsTundra + ecoregionSechuraDesert + 
+    ##     ecoregionSelengeOrkhonForestSteppe + ecoregionSierraMadreOccidentalPineOakForests + 
+    ##     ecoregionSimpsonDesert + ecoregionSolimoesJapurÃMoistForests + 
+    ##     ecoregionSomaliAcaciaCommiphoraBushlandsAndThickets + ecoregionSonoranDesert + 
+    ##     ecoregionSouthChinaVietnamSubtropicalEvergreenForests + ecoregionSouthIranNuboSindianDesertAndSemiDesert + 
     ##     ecoregionSouthSaharanSteppeAndWoodlands + ecoregionSouthSiberianForestSteppe + 
-    ##     ecoregionSoutheastAustraliaTemperateForests + ecoregionSoutheastTibetShrublandsAndMeadows + 
-    ##     ecoregionSoutheasternIndochinaDryEvergreenForests + ecoregionSouthernAcaciaCommiphoraBushlandsAndThickets + 
-    ##     ecoregionSouthernAfricaBushveld + ecoregionSouthernArctic + 
-    ##     ecoregionSouthernCongolianForestSavannaMosaic + ecoregionSouthernMesoamericanPacificMangroves + 
-    ##     ecoregionSouthernMiomboWoodlands + ecoregionSouthernRiftMontaneForestGrasslandMosaic + 
+    ##     ecoregionSoutheastAustraliaTemperateForests + ecoregionSoutheastAustraliaTemperateSavanna + 
+    ##     ecoregionSoutheastTibetShrublandsAndMeadows + ecoregionSouthernAcaciaCommiphoraBushlandsAndThickets + 
+    ##     ecoregionSouthernAnnamitesMontaneRainForests + ecoregionSouthernArctic + 
+    ##     ecoregionSouthernCongolianForestSavannaMosaic + ecoregionSouthernMiomboWoodlands + 
+    ##     ecoregionSouthernNewGuineaLowlandRainForests + ecoregionSouthernRiftMontaneForestGrasslandMosaic + 
     ##     ecoregionSouthernRockyMountains + ecoregionSouthernShortgrassPrairie + 
-    ##     ecoregionSouthwestAmazonMoistForests + ecoregionSouthwestAustraliaSavanna + 
-    ##     ecoregionSouthwestIberianMediterraneanSclerophyllousAndMixedForests + 
-    ##     ecoregionSucculentKaroo + ecoregionSulaimanRangeAlpineMeadows + 
-    ##     ecoregionSumatranPeatSwampForests + ecoregionTaigaCordillera + 
-    ##     ecoregionTaigaPlains + ecoregionTaimyrCentralSiberianTundra + 
-    ##     ecoregionTaklimakanDesert + ecoregionTapajÃ³sXinguMoistForests + 
-    ##     ecoregionTarimBasinDeciduousForestsAndSteppe + ecoregionTenasserimSouthThailandSemiEvergreenRainForests + 
-    ##     ecoregionTeraiDuarSavannaAndGrasslands + ecoregionTharDesert + 
+    ##     ecoregionSouthernVietnamLowlandDryForests + ecoregionSouthwestAmazonMoistForests + 
+    ##     ecoregionSouthwesternArabianMontaneWoodlands + ecoregionSulawesiLowlandRainForests + 
+    ##     ecoregionSumatranPeatSwampForests + ecoregionSundaShelfMangroves + 
+    ##     ecoregionSuperiorMixedForest + ecoregionTaigaCordillera + 
+    ##     ecoregionTaigaPlains + ecoregionTaiheiyoMontaneDeciduousForests + 
+    ##     ecoregionTaimyrCentralSiberianTundra + ecoregionTaiwanSubtropicalEvergreenForests + 
+    ##     ecoregionTaklimakanDesert + ecoregionTamaulipanThornScrub + 
+    ##     ecoregionTapajÃ³sXinguMoistForests + ecoregionTasmanianTemperateRainForests + 
+    ##     ecoregionTharDesert + ecoregionTianShanFoothillAridSteppe + 
     ##     ecoregionTianShanMontaneSteppeAndMeadows + ecoregionTibetanPlateauAlpineShrublandsAndMeadows + 
-    ##     ecoregionTirariSturtStonyDesert + ecoregionTocantinsPindareMoistForests + 
-    ##     ecoregionTransBaikalBaldMountainTundra + ecoregionTransMexicanVolcanicBeltPineOakForests + 
-    ##     ecoregionTropicalFlorida + ecoregionTumbesPiuraDryForests + 
+    ##     ecoregionTirariSturtStonyDesert + ecoregionTransBaikalBaldMountainTundra + 
+    ##     ecoregionTransBaikalConiferForests + ecoregionTumbesPiuraDryForests + 
     ##     ecoregionTyrrhenianAdriaticSclerophyllousAndMixedForests + 
-    ##     ecoregionUatumaTrombetasMoistForests + ecoregionUpperEastGulfCoastalPlain + 
-    ##     ecoregionUpperGangeticPlainsMoistDeciduousForests + ecoregionUpperWestGulfCoastalPlain + 
-    ##     ecoregionUralMontaneForestsAndTundra + ecoregionUruguayanSavanna + 
-    ##     ecoregionUtahWyomingRockyMountains + ecoregionValdivianTemperateForests + 
-    ##     ecoregionVeracruzMoistForests + ecoregionVictoriaBasinForestSavannaMosaic + 
-    ##     ecoregionVictoriaPlainsTropicalSavanna + ecoregionWestGulfCoastalPlain + 
-    ##     ecoregionWestSaharanMontaneXericWoodlands + ecoregionWestSiberianTaiga + 
-    ##     ecoregionWestSudanianSavanna + ecoregionWesternAustralianMulgaShrublands + 
+    ##     ecoregionUatumaTrombetasMoistForests + ecoregionUralMontaneForestsAndTundra + 
+    ##     ecoregionUruguayanSavanna + ecoregionUtahWyomingRockyMountains + 
+    ##     ecoregionValdivianTemperateForests + ecoregionVeracruzMoistForests + 
+    ##     ecoregionVictoriaBasinForestSavannaMosaic + ecoregionVogelkopAruLowlandRainForests + 
+    ##     ecoregionWestGulfCoastalPlain + ecoregionWestSaharanMontaneXericWoodlands + 
+    ##     ecoregionWestSiberianTaiga + ecoregionWestSudanianSavanna + 
+    ##     ecoregionWesternAlleghenyPlateau + ecoregionWesternAustralianMulgaShrublands + 
     ##     ecoregionWesternCongolianForestSavannaMosaic + ecoregionWesternEuropeanBroadleafForests + 
-    ##     ecoregionWesternGuineanLowlandForests + ecoregionWesternHimalayanAlpineShrubAndMeadows + 
-    ##     ecoregionWesternSiberianHemiborealForests + ecoregionWesternTaigaShield + 
-    ##     ecoregionYamalGydanTundra + ecoregionYukonPlateauAndFlats + 
-    ##     ecoregionYunnanPlateauSubtropicalEvergreenForests + ecoregionZagrosMountainsForestSteppe + 
-    ##     ecoregionZambezianAndMopaneWoodlands + ecoregionZambezianCoastalFloodedSavanna + 
+    ##     ecoregionWesternGuineanLowlandForests + ecoregionWesternTaigaShield + 
+    ##     ecoregionWyomingBasins + ecoregionXinguTocantinsAraguaiaMoistForests + 
+    ##     ecoregionYamalGydanTundra + ecoregionYarlungTsangpoAridSteppe + 
+    ##     ecoregionYucatÃnDryForests + ecoregionYukonPlateauAndFlats + 
+    ##     ecoregionZagrosMountainsForestSteppe + ecoregionZambezianAndMopaneWoodlands + 
     ##     log_road_chickens + log_road_pigs + log_road_cattle + log_road_sheep + 
     ##     log_road_goats + mammalDiversity + logRoadDensity
 
@@ -10172,16 +10194,7 @@ gbmtest<- gbm(model,
 ```
 
     ## Warning in gbm.fit(x = x, y = y, offset = offset, distribution =
-    ## distribution, : variable 14: LC_current_yearLC6 has no variation.
-
-    ## Warning in gbm.fit(x = x, y = y, offset = offset, distribution =
-    ## distribution, : variable 30: LC_previous_yearLC6 has no variation.
-
-    ## Warning in gbm.fit(x = x, y = y, offset = offset, distribution =
     ## distribution, : variable 46: Babyrousa_babyrussa has no variation.
-
-    ## Warning in gbm.fit(x = x, y = y, offset = offset, distribution =
-    ## distribution, : variable 47: Babyrousa_celebensis has no variation.
 
     ## Warning in gbm.fit(x = x, y = y, offset = offset, distribution =
     ## distribution, : variable 48: Babyrousa_togeanensis has no variation.
@@ -10202,627 +10215,665 @@ gbmtest<- gbm(model,
     ## distribution, : variable 60: Sus_oliveri has no variation.
 
     ## Warning in gbm.fit(x = x, y = y, offset = offset, distribution =
-    ## distribution, : variable 61: Sus_philippensis has no variation.
-
-    ## Warning in gbm.fit(x = x, y = y, offset = offset, distribution =
     ## distribution, : variable 63: Sus_verrucosus has no variation.
 
     ## Warning in gbm.fit(x = x, y = y, offset = offset, distribution =
-    ## distribution, : variable 170: countryTajikistan has no variation.
+    ## distribution, : variable 82: countryAustria has no variation.
 
     ## Warning in gbm.fit(x = x, y = y, offset = offset, distribution =
-    ## distribution, : variable 201: ecoregionBadghyzAndKarabilSemiDesert has no
+    ## distribution, : variable 92: countryBurma has no variation.
+
+    ## Warning in gbm.fit(x = x, y = y, offset = offset, distribution =
+    ## distribution, : variable 117: countryGermany has no variation.
+
+    ## Warning in gbm.fit(x = x, y = y, offset = offset, distribution =
+    ## distribution, : variable 162: countrySomalia has no variation.
+
+    ## Warning in gbm.fit(x = x, y = y, offset = offset, distribution =
+    ## distribution, : variable 170: countryTaiwan has no variation.
+
+    ## Warning in gbm.fit(x = x, y = y, offset = offset, distribution =
+    ## distribution, : variable 204: ecoregionBaluchistanXericWoodlands has no
     ## variation.
 
     ## Warning in gbm.fit(x = x, y = y, offset = offset, distribution =
-    ## distribution, : variable 202: ecoregionBahiaInteriorForests has no
+    ## distribution, : variable 216: ecoregionCanadianRockyMountains has no
     ## variation.
 
     ## Warning in gbm.fit(x = x, y = y, offset = offset, distribution =
-    ## distribution, : variable 209: ecoregionBolivianYungas has no variation.
-
-    ## Warning in gbm.fit(x = x, y = y, offset = offset,
-    ## distribution = distribution, : variable 232:
-    ## ecoregionCentralDeccanPlateauDryDeciduousForests has no variation.
+    ## distribution, : variable 225: ecoregionCentralAsianRiparianWoodlands has no
+    ## variation.
 
     ## Warning in gbm.fit(x = x, y = y, offset = offset, distribution =
-    ## distribution, : variable 244: ecoregionChangjiangPlainEvergreenForests has
+    ## distribution, : variable 231: ecoregionCentralPersianDesertBasins has no
+    ## variation.
+
+    ## Warning in gbm.fit(x = x, y = y, offset = offset, distribution =
+    ## distribution, : variable 234: ecoregionCentralShortgrassPrairie has no
+    ## variation.
+
+    ## Warning in gbm.fit(x = x, y = y, offset = offset, distribution =
+    ## distribution, : variable 240: ecoregionChangjiangPlainEvergreenForests has
     ## no variation.
 
     ## Warning in gbm.fit(x = x, y = y, offset = offset, distribution =
-    ## distribution, : variable 246: ecoregionChiapasDepressionDryForests has no
+    ## distribution, : variable 253: ecoregionDakotaMixedGrassPrairie has no
     ## variation.
 
     ## Warning in gbm.fit(x = x, y = y, offset = offset, distribution =
-    ## distribution, : variable 261: ecoregionDeccanThornScrubForests has no
-    ## variation.
-
-    ## Warning in gbm.fit(x = x, y = y, offset = offset, distribution =
-    ## distribution, : variable 291: ecoregionGreatLakesBasinDesertSteppe has no
-    ## variation.
-
-    ## Warning in gbm.fit(x = x, y = y, offset = offset, distribution =
-    ## distribution, : variable 299: ecoregionGulfOfAlaskaMountainsAndFjordlands
-    ## has no variation.
-
-    ## Warning in gbm.fit(x = x, y = y, offset = offset, distribution =
-    ## distribution, : variable 304: ecoregionHuangHePlainMixedForests has no
-    ## variation.
-
-    ## Warning in gbm.fit(x = x, y = y, offset = offset, distribution =
-    ## distribution, : variable 315: ecoregionJunggarBasinSemiDesert has no
-    ## variation.
-
-    ## Warning in gbm.fit(x = x, y = y, offset = offset,
-    ## distribution = distribution, : variable 321:
-    ## ecoregionKamchatkaMountainTundraAndForestTundra has no variation.
-
-    ## Warning in gbm.fit(x = x, y = y, offset = offset, distribution =
-    ## distribution, : variable 346: ecoregionMesoamericanGulfCaribbeanMangroves
-    ## has no variation.
-
-    ## Warning in gbm.fit(x = x, y = y, offset = offset, distribution =
-    ## distribution, : variable 348: ecoregionMidAtlanticCoastalPlain has no
-    ## variation.
-
-    ## Warning in gbm.fit(x = x, y = y, offset = offset, distribution =
-    ## distribution, : variable 357: ecoregionNileDeltaFloodedSavanna has no
-    ## variation.
-
-    ## Warning in gbm.fit(x = x, y = y, offset = offset, distribution =
-    ## distribution, : variable 368: ecoregionNorthernCongolianForestSavannaMosaic
-    ## has no variation.
-
-    ## Warning in gbm.fit(x = x, y = y, offset = offset, distribution =
-    ## distribution, : variable 379: ecoregionOsagePlainsFlintHillsPrairie has no
-    ## variation.
-
-    ## Warning in gbm.fit(x = x, y = y, offset = offset,
-    ## distribution = distribution, : variable 385:
-    ## ecoregionPeninsularMalaysianMontaneRainForests has no variation.
-
-    ## Warning in gbm.fit(x = x, y = y, offset = offset,
-    ## distribution = distribution, : variable 394:
-    ## ecoregionRedSeaNuboSindianTropicalDesertAndSemiDesert has no variation.
-
-    ## Warning in gbm.fit(x = x, y = y, offset = offset, distribution =
-    ## distribution, : variable 401: ecoregionSayanAlpineMeadowsAndTundra has no
-    ## variation.
-
-    ## Warning in gbm.fit(x = x, y = y, offset = offset, distribution =
-    ## distribution, : variable 402: ecoregionSayanMontaneConiferForests has no
-    ## variation.
-
-    ## Warning in gbm.fit(x = x, y = y, offset = offset,
-    ## distribution = distribution, : variable 446:
-    ## ecoregionTransMexicanVolcanicBeltPineOakForests has no variation.
-
-    ## Warning in gbm.fit(x = x, y = y, offset = offset, distribution =
-    ## distribution, : variable 447: ecoregionTropicalFlorida has no variation.
-
-    ## Warning in gbm.fit(x = x, y = y, offset = offset, distribution =
-    ## distribution, : variable 456: ecoregionUtahWyomingRockyMountains has no
-    ## variation.
-
-    ## Warning in gbm.fit(x = x, y = y, offset = offset, distribution =
-    ## distribution, : variable 465: ecoregionWesternAustralianMulgaShrublands has
+    ## distribution, : variable 263: ecoregionEasternAustraliaMulgaShrublands has
     ## no variation.
 
     ## Warning in gbm.fit(x = x, y = y, offset = offset, distribution =
-    ## distribution, : variable 470: ecoregionWesternSiberianHemiborealForests has
+    ## distribution, : variable 270: ecoregionEdwardsPlateau has no variation.
+
+    ## Warning in gbm.fit(x = x, y = y, offset = offset, distribution =
+    ## distribution, : variable 280: ecoregionGreatLakes has no variation.
+
+    ## Warning in gbm.fit(x = x, y = y, offset = offset, distribution =
+    ## distribution, : variable 301: ecoregionInteriorAlaskaTaiga has no
+    ## variation.
+
+    ## Warning in gbm.fit(x = x, y = y, offset = offset, distribution =
+    ## distribution, : variable 304: ecoregionJianNanSubtropicalEvergreenForests
+    ## has no variation.
+
+    ## Warning in gbm.fit(x = x, y = y, offset = offset,
+    ## distribution = distribution, : variable 309:
+    ## ecoregionKamchatkaKurileMeadowsAndSparseForests has no variation.
+
+    ## Warning in gbm.fit(x = x, y = y, offset = offset, distribution =
+    ## distribution, : variable 324: ecoregionLuzonMontaneRainForests has no
+    ## variation.
+
+    ## Warning in gbm.fit(x = x, y = y, offset = offset, distribution =
+    ## distribution, : variable 330: ecoregionMaraÃÃ³nDryForests has no variation.
+
+    ## Warning in gbm.fit(x = x, y = y, offset = offset, distribution =
+    ## distribution, : variable 337: ecoregionMesopotamianShrubDesert has no
+    ## variation.
+
+    ## Warning in gbm.fit(x = x, y = y, offset = offset, distribution =
+    ## distribution, : variable 341: ecoregionMojaveDesert has no variation.
+
+    ## Warning in gbm.fit(x = x, y = y, offset = offset, distribution =
+    ## distribution, : variable 368: ecoregionNorthernIndochinaSubtropicalForests
+    ## has no variation.
+
+    ## Warning in gbm.fit(x = x, y = y, offset = offset, distribution =
+    ## distribution, : variable 369: ecoregionNorthernTallgrassPrairie has no
+    ## variation.
+
+    ## Warning in gbm.fit(x = x, y = y, offset = offset, distribution =
+    ## distribution, : variable 379: ecoregionOuachitaMountains has no variation.
+
+    ## Warning in gbm.fit(x = x, y = y, offset = offset, distribution =
+    ## distribution, : variable 385: ecoregionParopamisusXericWoodlands has no
+    ## variation.
+
+    ## Warning in gbm.fit(x = x, y = y, offset = offset, distribution =
+    ## distribution, : variable 405: ecoregionSayanMontaneConiferForests has no
+    ## variation.
+
+    ## Warning in gbm.fit(x = x, y = y, offset = offset, distribution =
+    ## distribution, : variable 419: ecoregionSouthSiberianForestSteppe has no
+    ## variation.
+
+    ## Warning in gbm.fit(x = x, y = y, offset = offset, distribution =
+    ## distribution, : variable 437: ecoregionSundaShelfMangroves has no
+    ## variation.
+
+    ## Warning in gbm.fit(x = x, y = y, offset = offset, distribution =
+    ## distribution, : variable 443: ecoregionTaiwanSubtropicalEvergreenForests
+    ## has no variation.
+
+    ## Warning in gbm.fit(x = x, y = y, offset = offset, distribution =
+    ## distribution, : variable 445: ecoregionTamaulipanThornScrub has no
+    ## variation.
+
+    ## Warning in gbm.fit(x = x, y = y, offset = offset, distribution =
+    ## distribution, : variable 454: ecoregionTransBaikalConiferForests has no
+    ## variation.
+
+    ## Warning in gbm.fit(x = x, y = y, offset = offset, distribution =
+    ## distribution, : variable 455: ecoregionTumbesPiuraDryForests has no
+    ## variation.
+
+    ## Warning in gbm.fit(x = x, y = y, offset = offset, distribution =
+    ## distribution, : variable 457: ecoregionUatumaTrombetasMoistForests has no
+    ## variation.
+
+    ## Warning in gbm.fit(x = x, y = y, offset = offset, distribution =
+    ## distribution, : variable 458: ecoregionUralMontaneForestsAndTundra has no
+    ## variation.
+
+    ## Warning in gbm.fit(x = x, y = y, offset = offset, distribution =
+    ## distribution, : variable 460: ecoregionUtahWyomingRockyMountains has no
+    ## variation.
+
+    ## Warning in gbm.fit(x = x, y = y, offset = offset, distribution =
+    ## distribution, : variable 462: ecoregionVeracruzMoistForests has no
+    ## variation.
+
+    ## Warning in gbm.fit(x = x, y = y, offset = offset, distribution =
+    ## distribution, : variable 466: ecoregionWestSaharanMontaneXericWoodlands has
     ## no variation.
+
+    ## Warning in gbm.fit(x = x, y = y, offset = offset, distribution =
+    ## distribution, : variable 469: ecoregionWesternAlleghenyPlateau has no
+    ## variation.
 
     ## Iter   TrainDeviance   ValidDeviance   StepSize   Improve
-    ##      1        1.3752             nan     0.0100    0.0053
-    ##      2        1.3646             nan     0.0100    0.0051
-    ##      3        1.3542             nan     0.0100    0.0050
-    ##      4        1.3438             nan     0.0100    0.0049
-    ##      5        1.3333             nan     0.0100    0.0051
-    ##      6        1.3235             nan     0.0100    0.0047
-    ##      7        1.3142             nan     0.0100    0.0044
-    ##      8        1.3044             nan     0.0100    0.0046
-    ##      9        1.2950             nan     0.0100    0.0045
-    ##     10        1.2851             nan     0.0100    0.0047
-    ##     20        1.1991             nan     0.0100    0.0037
-    ##     40        1.0545             nan     0.0100    0.0031
-    ##     60        0.9463             nan     0.0100    0.0021
-    ##     80        0.8594             nan     0.0100    0.0019
-    ##    100        0.7879             nan     0.0100    0.0015
-    ##    120        0.7264             nan     0.0100    0.0013
-    ##    140        0.6754             nan     0.0100    0.0007
-    ##    160        0.6330             nan     0.0100    0.0007
-    ##    180        0.5971             nan     0.0100    0.0007
-    ##    200        0.5663             nan     0.0100    0.0006
-    ##    220        0.5405             nan     0.0100    0.0003
-    ##    240        0.5183             nan     0.0100    0.0004
-    ##    260        0.4973             nan     0.0100    0.0005
-    ##    280        0.4790             nan     0.0100    0.0003
-    ##    300        0.4632             nan     0.0100    0.0003
-    ##    320        0.4483             nan     0.0100    0.0003
-    ##    340        0.4354             nan     0.0100    0.0001
-    ##    360        0.4237             nan     0.0100    0.0002
-    ##    380        0.4116             nan     0.0100    0.0003
-    ##    400        0.4010             nan     0.0100    0.0001
-    ##    420        0.3905             nan     0.0100    0.0002
-    ##    440        0.3822             nan     0.0100    0.0001
-    ##    460        0.3738             nan     0.0100    0.0001
-    ##    480        0.3655             nan     0.0100    0.0001
-    ##    500        0.3572             nan     0.0100    0.0001
-    ##    520        0.3495             nan     0.0100    0.0000
-    ##    540        0.3421             nan     0.0100    0.0000
-    ##    560        0.3354             nan     0.0100    0.0000
-    ##    580        0.3292             nan     0.0100    0.0001
-    ##    600        0.3226             nan     0.0100    0.0000
-    ##    620        0.3167             nan     0.0100   -0.0000
-    ##    640        0.3110             nan     0.0100    0.0000
-    ##    660        0.3054             nan     0.0100    0.0000
-    ##    680        0.3003             nan     0.0100    0.0000
-    ##    700        0.2949             nan     0.0100    0.0000
-    ##    720        0.2902             nan     0.0100    0.0000
-    ##    740        0.2855             nan     0.0100    0.0000
-    ##    760        0.2803             nan     0.0100    0.0001
-    ##    780        0.2759             nan     0.0100    0.0000
-    ##    800        0.2712             nan     0.0100    0.0000
-    ##    820        0.2663             nan     0.0100    0.0000
-    ##    840        0.2620             nan     0.0100   -0.0000
-    ##    860        0.2582             nan     0.0100    0.0000
-    ##    880        0.2549             nan     0.0100   -0.0000
-    ##    900        0.2514             nan     0.0100   -0.0000
-    ##    920        0.2473             nan     0.0100    0.0000
-    ##    940        0.2437             nan     0.0100    0.0000
-    ##    960        0.2402             nan     0.0100   -0.0000
-    ##    980        0.2371             nan     0.0100    0.0000
-    ##   1000        0.2336             nan     0.0100   -0.0000
-    ##   1020        0.2300             nan     0.0100   -0.0001
-    ##   1040        0.2267             nan     0.0100   -0.0000
-    ##   1060        0.2238             nan     0.0100   -0.0000
-    ##   1080        0.2206             nan     0.0100    0.0001
-    ##   1100        0.2173             nan     0.0100    0.0000
-    ##   1120        0.2144             nan     0.0100   -0.0000
-    ##   1140        0.2115             nan     0.0100    0.0000
-    ##   1160        0.2085             nan     0.0100   -0.0000
-    ##   1180        0.2054             nan     0.0100    0.0000
-    ##   1200        0.2027             nan     0.0100    0.0000
-    ##   1220        0.2001             nan     0.0100   -0.0000
-    ##   1240        0.1975             nan     0.0100   -0.0000
-    ##   1260        0.1951             nan     0.0100    0.0000
-    ##   1280        0.1926             nan     0.0100    0.0000
-    ##   1300        0.1902             nan     0.0100    0.0000
-    ##   1320        0.1878             nan     0.0100   -0.0000
-    ##   1340        0.1861             nan     0.0100    0.0000
-    ##   1360        0.1840             nan     0.0100   -0.0000
-    ##   1380        0.1819             nan     0.0100   -0.0000
-    ##   1400        0.1797             nan     0.0100   -0.0000
-    ##   1420        0.1770             nan     0.0100   -0.0000
-    ##   1440        0.1745             nan     0.0100   -0.0000
-    ##   1460        0.1722             nan     0.0100   -0.0000
-    ##   1480        0.1701             nan     0.0100   -0.0001
-    ##   1500        0.1680             nan     0.0100   -0.0000
-    ##   1520        0.1657             nan     0.0100   -0.0000
-    ##   1540        0.1637             nan     0.0100   -0.0000
-    ##   1560        0.1613             nan     0.0100    0.0000
-    ##   1580        0.1595             nan     0.0100   -0.0000
-    ##   1600        0.1575             nan     0.0100    0.0000
-    ##   1620        0.1556             nan     0.0100   -0.0000
-    ##   1640        0.1538             nan     0.0100    0.0000
-    ##   1660        0.1523             nan     0.0100   -0.0000
-    ##   1680        0.1505             nan     0.0100   -0.0000
-    ##   1700        0.1488             nan     0.0100   -0.0001
-    ##   1720        0.1472             nan     0.0100   -0.0000
-    ##   1740        0.1459             nan     0.0100   -0.0000
-    ##   1760        0.1445             nan     0.0100   -0.0000
-    ##   1780        0.1433             nan     0.0100   -0.0000
-    ##   1800        0.1416             nan     0.0100    0.0000
-    ##   1820        0.1401             nan     0.0100   -0.0000
-    ##   1840        0.1385             nan     0.0100   -0.0000
-    ##   1860        0.1369             nan     0.0100    0.0000
-    ##   1880        0.1354             nan     0.0100   -0.0000
-    ##   1900        0.1340             nan     0.0100   -0.0000
-    ##   1920        0.1326             nan     0.0100   -0.0000
-    ##   1940        0.1311             nan     0.0100   -0.0000
-    ##   1960        0.1297             nan     0.0100    0.0000
-    ##   1980        0.1286             nan     0.0100   -0.0000
-    ##   2000        0.1271             nan     0.0100   -0.0001
+    ##      1        1.3758             nan     0.0100    0.0053
+    ##      2        1.3654             nan     0.0100    0.0049
+    ##      3        1.3547             nan     0.0100    0.0050
+    ##      4        1.3442             nan     0.0100    0.0051
+    ##      5        1.3342             nan     0.0100    0.0048
+    ##      6        1.3243             nan     0.0100    0.0046
+    ##      7        1.3141             nan     0.0100    0.0045
+    ##      8        1.3045             nan     0.0100    0.0045
+    ##      9        1.2950             nan     0.0100    0.0047
+    ##     10        1.2857             nan     0.0100    0.0043
+    ##     20        1.2011             nan     0.0100    0.0036
+    ##     40        1.0651             nan     0.0100    0.0028
+    ##     60        0.9566             nan     0.0100    0.0022
+    ##     80        0.8704             nan     0.0100    0.0014
+    ##    100        0.8034             nan     0.0100    0.0014
+    ##    120        0.7436             nan     0.0100    0.0011
+    ##    140        0.6922             nan     0.0100    0.0006
+    ##    160        0.6488             nan     0.0100    0.0005
+    ##    180        0.6100             nan     0.0100    0.0005
+    ##    200        0.5763             nan     0.0100    0.0009
+    ##    220        0.5496             nan     0.0100    0.0005
+    ##    240        0.5259             nan     0.0100    0.0005
+    ##    260        0.5037             nan     0.0100    0.0005
+    ##    280        0.4854             nan     0.0100    0.0004
+    ##    300        0.4682             nan     0.0100    0.0002
+    ##    320        0.4534             nan     0.0100    0.0002
+    ##    340        0.4390             nan     0.0100    0.0003
+    ##    360        0.4270             nan     0.0100    0.0002
+    ##    380        0.4150             nan     0.0100    0.0002
+    ##    400        0.4045             nan     0.0100    0.0001
+    ##    420        0.3940             nan     0.0100    0.0001
+    ##    440        0.3845             nan     0.0100    0.0001
+    ##    460        0.3757             nan     0.0100    0.0001
+    ##    480        0.3677             nan     0.0100    0.0000
+    ##    500        0.3603             nan     0.0100    0.0001
+    ##    520        0.3530             nan     0.0100    0.0001
+    ##    540        0.3461             nan     0.0100    0.0001
+    ##    560        0.3389             nan     0.0100    0.0000
+    ##    580        0.3335             nan     0.0100    0.0000
+    ##    600        0.3270             nan     0.0100    0.0001
+    ##    620        0.3208             nan     0.0100    0.0000
+    ##    640        0.3152             nan     0.0100    0.0001
+    ##    660        0.3092             nan     0.0100    0.0001
+    ##    680        0.3041             nan     0.0100    0.0000
+    ##    700        0.2990             nan     0.0100    0.0000
+    ##    720        0.2943             nan     0.0100    0.0000
+    ##    740        0.2889             nan     0.0100    0.0000
+    ##    760        0.2839             nan     0.0100   -0.0001
+    ##    780        0.2789             nan     0.0100    0.0001
+    ##    800        0.2742             nan     0.0100    0.0001
+    ##    820        0.2702             nan     0.0100    0.0000
+    ##    840        0.2658             nan     0.0100    0.0000
+    ##    860        0.2619             nan     0.0100    0.0000
+    ##    880        0.2583             nan     0.0100    0.0000
+    ##    900        0.2544             nan     0.0100    0.0000
+    ##    920        0.2507             nan     0.0100    0.0000
+    ##    940        0.2472             nan     0.0100   -0.0000
+    ##    960        0.2438             nan     0.0100   -0.0000
+    ##    980        0.2404             nan     0.0100   -0.0000
+    ##   1000        0.2372             nan     0.0100   -0.0000
+    ##   1020        0.2339             nan     0.0100   -0.0000
+    ##   1040        0.2305             nan     0.0100   -0.0000
+    ##   1060        0.2271             nan     0.0100    0.0000
+    ##   1080        0.2241             nan     0.0100   -0.0000
+    ##   1100        0.2212             nan     0.0100    0.0000
+    ##   1120        0.2182             nan     0.0100    0.0000
+    ##   1140        0.2151             nan     0.0100    0.0000
+    ##   1160        0.2123             nan     0.0100   -0.0000
+    ##   1180        0.2093             nan     0.0100   -0.0000
+    ##   1200        0.2069             nan     0.0100   -0.0000
+    ##   1220        0.2043             nan     0.0100   -0.0000
+    ##   1240        0.2014             nan     0.0100    0.0000
+    ##   1260        0.1985             nan     0.0100   -0.0000
+    ##   1280        0.1958             nan     0.0100    0.0000
+    ##   1300        0.1935             nan     0.0100    0.0000
+    ##   1320        0.1909             nan     0.0100   -0.0000
+    ##   1340        0.1885             nan     0.0100   -0.0000
+    ##   1360        0.1863             nan     0.0100   -0.0000
+    ##   1380        0.1840             nan     0.0100   -0.0000
+    ##   1400        0.1817             nan     0.0100    0.0000
+    ##   1420        0.1797             nan     0.0100   -0.0000
+    ##   1440        0.1774             nan     0.0100   -0.0000
+    ##   1460        0.1753             nan     0.0100   -0.0000
+    ##   1480        0.1730             nan     0.0100    0.0000
+    ##   1500        0.1707             nan     0.0100    0.0000
+    ##   1520        0.1688             nan     0.0100    0.0000
+    ##   1540        0.1666             nan     0.0100   -0.0000
+    ##   1560        0.1644             nan     0.0100   -0.0000
+    ##   1580        0.1624             nan     0.0100    0.0000
+    ##   1600        0.1602             nan     0.0100   -0.0000
+    ##   1620        0.1585             nan     0.0100    0.0000
+    ##   1640        0.1568             nan     0.0100   -0.0000
+    ##   1660        0.1550             nan     0.0100   -0.0001
+    ##   1680        0.1532             nan     0.0100   -0.0000
+    ##   1700        0.1517             nan     0.0100   -0.0000
+    ##   1720        0.1497             nan     0.0100   -0.0000
+    ##   1740        0.1478             nan     0.0100    0.0000
+    ##   1760        0.1461             nan     0.0100   -0.0000
+    ##   1780        0.1443             nan     0.0100   -0.0000
+    ##   1800        0.1428             nan     0.0100   -0.0000
+    ##   1820        0.1413             nan     0.0100    0.0000
+    ##   1840        0.1395             nan     0.0100   -0.0000
+    ##   1860        0.1379             nan     0.0100   -0.0000
+    ##   1880        0.1363             nan     0.0100   -0.0000
+    ##   1900        0.1347             nan     0.0100   -0.0000
+    ##   1920        0.1331             nan     0.0100   -0.0000
+    ##   1940        0.1316             nan     0.0100   -0.0000
+    ##   1960        0.1300             nan     0.0100   -0.0000
+    ##   1980        0.1285             nan     0.0100    0.0000
+    ##   2000        0.1270             nan     0.0100   -0.0000
     ##   2020        0.1257             nan     0.0100   -0.0000
     ##   2040        0.1242             nan     0.0100   -0.0000
-    ##   2060        0.1230             nan     0.0100   -0.0000
-    ##   2080        0.1219             nan     0.0100   -0.0000
-    ##   2100        0.1207             nan     0.0100   -0.0000
-    ##   2120        0.1191             nan     0.0100   -0.0000
-    ##   2140        0.1178             nan     0.0100   -0.0000
-    ##   2160        0.1166             nan     0.0100   -0.0000
-    ##   2180        0.1154             nan     0.0100   -0.0000
-    ##   2200        0.1143             nan     0.0100   -0.0000
-    ##   2220        0.1130             nan     0.0100    0.0000
-    ##   2240        0.1120             nan     0.0100   -0.0000
-    ##   2260        0.1109             nan     0.0100   -0.0000
-    ##   2280        0.1098             nan     0.0100    0.0000
-    ##   2300        0.1086             nan     0.0100   -0.0000
-    ##   2320        0.1076             nan     0.0100    0.0000
-    ##   2340        0.1065             nan     0.0100   -0.0000
-    ##   2360        0.1053             nan     0.0100   -0.0000
-    ##   2380        0.1043             nan     0.0100   -0.0000
-    ##   2400        0.1033             nan     0.0100   -0.0000
-    ##   2420        0.1023             nan     0.0100   -0.0000
-    ##   2440        0.1013             nan     0.0100    0.0000
-    ##   2460        0.1003             nan     0.0100   -0.0000
-    ##   2480        0.0992             nan     0.0100   -0.0000
-    ##   2500        0.0983             nan     0.0100   -0.0000
-    ##   2520        0.0973             nan     0.0100   -0.0000
-    ##   2540        0.0962             nan     0.0100   -0.0000
-    ##   2560        0.0951             nan     0.0100    0.0000
-    ##   2580        0.0940             nan     0.0100   -0.0000
-    ##   2600        0.0931             nan     0.0100   -0.0000
-    ##   2620        0.0922             nan     0.0100    0.0000
-    ##   2640        0.0913             nan     0.0100   -0.0000
-    ##   2660        0.0904             nan     0.0100   -0.0000
-    ##   2680        0.0895             nan     0.0100   -0.0000
-    ##   2700        0.0886             nan     0.0100   -0.0000
-    ##   2720        0.0877             nan     0.0100   -0.0000
-    ##   2740        0.0868             nan     0.0100   -0.0000
-    ##   2760        0.0859             nan     0.0100   -0.0000
-    ##   2780        0.0851             nan     0.0100   -0.0000
-    ##   2800        0.0842             nan     0.0100   -0.0000
-    ##   2820        0.0834             nan     0.0100   -0.0000
-    ##   2840        0.0826             nan     0.0100   -0.0000
-    ##   2860        0.0817             nan     0.0100   -0.0000
-    ##   2880        0.0810             nan     0.0100   -0.0000
-    ##   2900        0.0801             nan     0.0100   -0.0000
-    ##   2920        0.0794             nan     0.0100   -0.0000
-    ##   2940        0.0787             nan     0.0100   -0.0000
-    ##   2960        0.0778             nan     0.0100   -0.0000
-    ##   2980        0.0771             nan     0.0100   -0.0000
-    ##   3000        0.0764             nan     0.0100   -0.0000
-    ##   3020        0.0756             nan     0.0100    0.0000
-    ##   3040        0.0749             nan     0.0100   -0.0000
-    ##   3060        0.0742             nan     0.0100   -0.0000
-    ##   3080        0.0735             nan     0.0100   -0.0000
-    ##   3100        0.0728             nan     0.0100   -0.0000
-    ##   3120        0.0721             nan     0.0100   -0.0000
-    ##   3140        0.0715             nan     0.0100   -0.0000
-    ##   3160        0.0708             nan     0.0100   -0.0000
-    ##   3180        0.0701             nan     0.0100   -0.0000
-    ##   3200        0.0695             nan     0.0100   -0.0000
-    ##   3220        0.0690             nan     0.0100   -0.0000
-    ##   3240        0.0683             nan     0.0100   -0.0000
-    ##   3260        0.0678             nan     0.0100   -0.0000
-    ##   3280        0.0673             nan     0.0100   -0.0000
-    ##   3300        0.0667             nan     0.0100   -0.0000
-    ##   3320        0.0661             nan     0.0100   -0.0000
-    ##   3340        0.0655             nan     0.0100   -0.0000
-    ##   3360        0.0649             nan     0.0100   -0.0000
-    ##   3380        0.0642             nan     0.0100   -0.0000
-    ##   3400        0.0636             nan     0.0100   -0.0000
-    ##   3420        0.0631             nan     0.0100   -0.0000
-    ##   3440        0.0625             nan     0.0100   -0.0000
-    ##   3460        0.0620             nan     0.0100   -0.0000
-    ##   3480        0.0614             nan     0.0100   -0.0000
-    ##   3500        0.0609             nan     0.0100   -0.0000
-    ##   3520        0.0604             nan     0.0100   -0.0000
-    ##   3540        0.0599             nan     0.0100   -0.0000
-    ##   3560        0.0594             nan     0.0100   -0.0000
-    ##   3580        0.0589             nan     0.0100   -0.0000
-    ##   3600        0.0584             nan     0.0100   -0.0000
-    ##   3620        0.0579             nan     0.0100   -0.0000
-    ##   3640        0.0574             nan     0.0100   -0.0000
-    ##   3660        0.0568             nan     0.0100   -0.0000
-    ##   3680        0.0563             nan     0.0100   -0.0000
-    ##   3700        0.0558             nan     0.0100   -0.0000
-    ##   3720        0.0554             nan     0.0100   -0.0000
-    ##   3740        0.0549             nan     0.0100   -0.0000
-    ##   3760        0.0544             nan     0.0100   -0.0000
-    ##   3780        0.0539             nan     0.0100   -0.0000
-    ##   3800        0.0535             nan     0.0100    0.0000
-    ##   3820        0.0531             nan     0.0100   -0.0000
-    ##   3840        0.0527             nan     0.0100   -0.0000
-    ##   3860        0.0523             nan     0.0100   -0.0000
-    ##   3880        0.0518             nan     0.0100   -0.0000
-    ##   3900        0.0514             nan     0.0100   -0.0000
-    ##   3920        0.0509             nan     0.0100   -0.0000
-    ##   3940        0.0504             nan     0.0100   -0.0000
-    ##   3960        0.0500             nan     0.0100   -0.0000
-    ##   3980        0.0496             nan     0.0100   -0.0000
-    ##   4000        0.0492             nan     0.0100   -0.0000
-    ##   4020        0.0488             nan     0.0100   -0.0000
-    ##   4040        0.0484             nan     0.0100   -0.0000
-    ##   4060        0.0480             nan     0.0100   -0.0000
-    ##   4080        0.0475             nan     0.0100   -0.0000
-    ##   4100        0.0471             nan     0.0100   -0.0000
-    ##   4120        0.0467             nan     0.0100   -0.0000
-    ##   4140        0.0463             nan     0.0100   -0.0000
-    ##   4160        0.0460             nan     0.0100   -0.0000
-    ##   4180        0.0456             nan     0.0100   -0.0000
-    ##   4200        0.0452             nan     0.0100   -0.0000
-    ##   4220        0.0449             nan     0.0100   -0.0000
-    ##   4240        0.0445             nan     0.0100   -0.0000
-    ##   4260        0.0442             nan     0.0100   -0.0000
-    ##   4280        0.0438             nan     0.0100   -0.0000
-    ##   4300        0.0434             nan     0.0100   -0.0000
-    ##   4320        0.0431             nan     0.0100   -0.0000
-    ##   4340        0.0427             nan     0.0100   -0.0000
-    ##   4360        0.0424             nan     0.0100   -0.0000
-    ##   4380        0.0420             nan     0.0100   -0.0000
-    ##   4400        0.0416             nan     0.0100   -0.0000
-    ##   4420        0.0412             nan     0.0100   -0.0000
-    ##   4440        0.0409             nan     0.0100   -0.0000
-    ##   4460        0.0406             nan     0.0100   -0.0000
-    ##   4480        0.0403             nan     0.0100   -0.0000
-    ##   4500        0.0399             nan     0.0100   -0.0000
-    ##   4520        0.0396             nan     0.0100   -0.0000
-    ##   4540        0.0393             nan     0.0100   -0.0000
-    ##   4560        0.0390             nan     0.0100   -0.0000
-    ##   4580        0.0387             nan     0.0100   -0.0000
-    ##   4600        0.0384             nan     0.0100   -0.0000
-    ##   4620        0.0380             nan     0.0100   -0.0000
-    ##   4640        0.0377             nan     0.0100   -0.0000
-    ##   4660        0.0374             nan     0.0100   -0.0000
-    ##   4680        0.0372             nan     0.0100   -0.0000
-    ##   4700        0.0369             nan     0.0100   -0.0000
-    ##   4720        0.0366             nan     0.0100    0.0000
-    ##   4740        0.0363             nan     0.0100   -0.0000
-    ##   4760        0.0360             nan     0.0100   -0.0000
-    ##   4780        0.0357             nan     0.0100   -0.0000
-    ##   4800        0.0354             nan     0.0100   -0.0000
-    ##   4820        0.0352             nan     0.0100    0.0000
-    ##   4840        0.0349             nan     0.0100   -0.0000
-    ##   4860        0.0346             nan     0.0100   -0.0000
-    ##   4880        0.0344             nan     0.0100   -0.0000
-    ##   4900        0.0341             nan     0.0100   -0.0000
-    ##   4920        0.0338             nan     0.0100    0.0000
-    ##   4940        0.0336             nan     0.0100   -0.0000
-    ##   4960        0.0333             nan     0.0100   -0.0000
-    ##   4980        0.0330             nan     0.0100   -0.0000
-    ##   5000        0.0327             nan     0.0100    0.0000
-    ##   5020        0.0325             nan     0.0100   -0.0000
-    ##   5040        0.0322             nan     0.0100   -0.0000
-    ##   5060        0.0320             nan     0.0100   -0.0000
-    ##   5080        0.0317             nan     0.0100   -0.0000
-    ##   5100        0.0314             nan     0.0100   -0.0000
-    ##   5120        0.0312             nan     0.0100   -0.0000
-    ##   5140        0.0309             nan     0.0100   -0.0000
-    ##   5160        0.0307             nan     0.0100   -0.0000
-    ##   5180        0.0304             nan     0.0100   -0.0000
-    ##   5200        0.0301             nan     0.0100   -0.0000
-    ##   5220        0.0298             nan     0.0100   -0.0000
-    ##   5240        0.0296             nan     0.0100   -0.0000
-    ##   5260        0.0293             nan     0.0100   -0.0000
-    ##   5280        0.0291             nan     0.0100   -0.0000
-    ##   5300        0.0289             nan     0.0100   -0.0000
-    ##   5320        0.0286             nan     0.0100   -0.0000
-    ##   5340        0.0285             nan     0.0100   -0.0000
-    ##   5360        0.0282             nan     0.0100   -0.0000
-    ##   5380        0.0280             nan     0.0100   -0.0000
-    ##   5400        0.0278             nan     0.0100   -0.0000
-    ##   5420        0.0276             nan     0.0100   -0.0000
-    ##   5440        0.0273             nan     0.0100   -0.0000
-    ##   5460        0.0271             nan     0.0100   -0.0000
-    ##   5480        0.0269             nan     0.0100   -0.0000
-    ##   5500        0.0267             nan     0.0100   -0.0000
-    ##   5520        0.0264             nan     0.0100   -0.0000
-    ##   5540        0.0262             nan     0.0100   -0.0000
-    ##   5560        0.0260             nan     0.0100   -0.0000
-    ##   5580        0.0258             nan     0.0100   -0.0000
-    ##   5600        0.0256             nan     0.0100   -0.0000
-    ##   5620        0.0254             nan     0.0100   -0.0000
-    ##   5640        0.0252             nan     0.0100   -0.0000
-    ##   5660        0.0250             nan     0.0100   -0.0000
-    ##   5680        0.0248             nan     0.0100   -0.0000
-    ##   5700        0.0246             nan     0.0100   -0.0000
-    ##   5720        0.0244             nan     0.0100   -0.0000
-    ##   5740        0.0242             nan     0.0100   -0.0000
-    ##   5760        0.0240             nan     0.0100   -0.0000
-    ##   5780        0.0239             nan     0.0100   -0.0000
-    ##   5800        0.0236             nan     0.0100   -0.0000
-    ##   5820        0.0235             nan     0.0100   -0.0000
-    ##   5840        0.0233             nan     0.0100   -0.0000
-    ##   5860        0.0231             nan     0.0100   -0.0000
-    ##   5880        0.0229             nan     0.0100   -0.0000
-    ##   5900        0.0227             nan     0.0100   -0.0000
-    ##   5920        0.0226             nan     0.0100   -0.0000
-    ##   5940        0.0224             nan     0.0100   -0.0000
-    ##   5960        0.0222             nan     0.0100    0.0000
-    ##   5980        0.0220             nan     0.0100   -0.0000
-    ##   6000        0.0219             nan     0.0100   -0.0000
-    ##   6020        0.0217             nan     0.0100   -0.0000
-    ##   6040        0.0216             nan     0.0100   -0.0000
-    ##   6060        0.0214             nan     0.0100   -0.0000
-    ##   6080        0.0213             nan     0.0100   -0.0000
-    ##   6100        0.0211             nan     0.0100   -0.0000
-    ##   6120        0.0209             nan     0.0100   -0.0000
-    ##   6140        0.0207             nan     0.0100   -0.0000
-    ##   6160        0.0206             nan     0.0100    0.0000
-    ##   6180        0.0204             nan     0.0100   -0.0000
-    ##   6200        0.0203             nan     0.0100   -0.0000
-    ##   6220        0.0200             nan     0.0100   -0.0000
-    ##   6240        0.0199             nan     0.0100   -0.0000
-    ##   6260        0.0197             nan     0.0100   -0.0000
-    ##   6280        0.0196             nan     0.0100   -0.0000
-    ##   6300        0.0195             nan     0.0100   -0.0000
-    ##   6320        0.0193             nan     0.0100   -0.0000
-    ##   6340        0.0192             nan     0.0100   -0.0000
-    ##   6360        0.0190             nan     0.0100   -0.0000
-    ##   6380        0.0189             nan     0.0100    0.0000
-    ##   6400        0.0188             nan     0.0100   -0.0000
-    ##   6420        0.0186             nan     0.0100   -0.0000
-    ##   6440        0.0185             nan     0.0100   -0.0000
-    ##   6460        0.0184             nan     0.0100   -0.0000
-    ##   6480        0.0182             nan     0.0100   -0.0000
-    ##   6500        0.0181             nan     0.0100    0.0000
-    ##   6520        0.0179             nan     0.0100   -0.0000
-    ##   6540        0.0178             nan     0.0100   -0.0000
-    ##   6560        0.0176             nan     0.0100   -0.0000
-    ##   6580        0.0175             nan     0.0100   -0.0000
-    ##   6600        0.0174             nan     0.0100   -0.0000
+    ##   2060        0.1229             nan     0.0100   -0.0000
+    ##   2080        0.1215             nan     0.0100   -0.0000
+    ##   2100        0.1202             nan     0.0100    0.0000
+    ##   2120        0.1188             nan     0.0100    0.0000
+    ##   2140        0.1176             nan     0.0100   -0.0000
+    ##   2160        0.1164             nan     0.0100   -0.0000
+    ##   2180        0.1151             nan     0.0100   -0.0000
+    ##   2200        0.1138             nan     0.0100   -0.0000
+    ##   2220        0.1126             nan     0.0100   -0.0000
+    ##   2240        0.1114             nan     0.0100   -0.0000
+    ##   2260        0.1102             nan     0.0100   -0.0000
+    ##   2280        0.1091             nan     0.0100   -0.0000
+    ##   2300        0.1080             nan     0.0100   -0.0000
+    ##   2320        0.1068             nan     0.0100    0.0000
+    ##   2340        0.1057             nan     0.0100   -0.0000
+    ##   2360        0.1045             nan     0.0100   -0.0000
+    ##   2380        0.1033             nan     0.0100   -0.0000
+    ##   2400        0.1023             nan     0.0100   -0.0000
+    ##   2420        0.1012             nan     0.0100   -0.0000
+    ##   2440        0.1002             nan     0.0100   -0.0000
+    ##   2460        0.0991             nan     0.0100   -0.0000
+    ##   2480        0.0980             nan     0.0100   -0.0000
+    ##   2500        0.0969             nan     0.0100    0.0000
+    ##   2520        0.0958             nan     0.0100   -0.0000
+    ##   2540        0.0949             nan     0.0100   -0.0000
+    ##   2560        0.0940             nan     0.0100   -0.0000
+    ##   2580        0.0932             nan     0.0100   -0.0000
+    ##   2600        0.0922             nan     0.0100   -0.0000
+    ##   2620        0.0912             nan     0.0100   -0.0000
+    ##   2640        0.0903             nan     0.0100   -0.0000
+    ##   2660        0.0893             nan     0.0100   -0.0000
+    ##   2680        0.0883             nan     0.0100   -0.0000
+    ##   2700        0.0874             nan     0.0100   -0.0000
+    ##   2720        0.0864             nan     0.0100   -0.0000
+    ##   2740        0.0854             nan     0.0100   -0.0000
+    ##   2760        0.0847             nan     0.0100   -0.0000
+    ##   2780        0.0837             nan     0.0100   -0.0000
+    ##   2800        0.0830             nan     0.0100   -0.0000
+    ##   2820        0.0822             nan     0.0100   -0.0000
+    ##   2840        0.0814             nan     0.0100   -0.0000
+    ##   2860        0.0806             nan     0.0100   -0.0000
+    ##   2880        0.0799             nan     0.0100   -0.0000
+    ##   2900        0.0791             nan     0.0100   -0.0000
+    ##   2920        0.0783             nan     0.0100   -0.0000
+    ##   2940        0.0776             nan     0.0100   -0.0000
+    ##   2960        0.0769             nan     0.0100    0.0000
+    ##   2980        0.0762             nan     0.0100   -0.0000
+    ##   3000        0.0756             nan     0.0100   -0.0000
+    ##   3020        0.0748             nan     0.0100    0.0000
+    ##   3040        0.0741             nan     0.0100   -0.0000
+    ##   3060        0.0734             nan     0.0100   -0.0000
+    ##   3080        0.0727             nan     0.0100   -0.0000
+    ##   3100        0.0721             nan     0.0100   -0.0000
+    ##   3120        0.0714             nan     0.0100   -0.0000
+    ##   3140        0.0707             nan     0.0100   -0.0000
+    ##   3160        0.0700             nan     0.0100   -0.0000
+    ##   3180        0.0693             nan     0.0100   -0.0000
+    ##   3200        0.0687             nan     0.0100   -0.0000
+    ##   3220        0.0680             nan     0.0100   -0.0000
+    ##   3240        0.0673             nan     0.0100   -0.0000
+    ##   3260        0.0668             nan     0.0100   -0.0000
+    ##   3280        0.0662             nan     0.0100   -0.0000
+    ##   3300        0.0655             nan     0.0100   -0.0000
+    ##   3320        0.0650             nan     0.0100   -0.0000
+    ##   3340        0.0644             nan     0.0100   -0.0000
+    ##   3360        0.0639             nan     0.0100   -0.0000
+    ##   3380        0.0634             nan     0.0100   -0.0000
+    ##   3400        0.0629             nan     0.0100   -0.0000
+    ##   3420        0.0623             nan     0.0100   -0.0000
+    ##   3440        0.0617             nan     0.0100   -0.0000
+    ##   3460        0.0611             nan     0.0100   -0.0000
+    ##   3480        0.0606             nan     0.0100   -0.0000
+    ##   3500        0.0600             nan     0.0100   -0.0000
+    ##   3520        0.0595             nan     0.0100   -0.0000
+    ##   3540        0.0590             nan     0.0100   -0.0000
+    ##   3560        0.0586             nan     0.0100   -0.0000
+    ##   3580        0.0580             nan     0.0100   -0.0000
+    ##   3600        0.0575             nan     0.0100    0.0000
+    ##   3620        0.0570             nan     0.0100    0.0000
+    ##   3640        0.0565             nan     0.0100   -0.0000
+    ##   3660        0.0560             nan     0.0100   -0.0000
+    ##   3680        0.0555             nan     0.0100   -0.0000
+    ##   3700        0.0550             nan     0.0100   -0.0000
+    ##   3720        0.0546             nan     0.0100   -0.0000
+    ##   3740        0.0541             nan     0.0100   -0.0000
+    ##   3760        0.0537             nan     0.0100   -0.0000
+    ##   3780        0.0532             nan     0.0100   -0.0000
+    ##   3800        0.0528             nan     0.0100   -0.0000
+    ##   3820        0.0524             nan     0.0100   -0.0000
+    ##   3840        0.0519             nan     0.0100   -0.0000
+    ##   3860        0.0515             nan     0.0100   -0.0000
+    ##   3880        0.0510             nan     0.0100   -0.0000
+    ##   3900        0.0506             nan     0.0100   -0.0000
+    ##   3920        0.0500             nan     0.0100   -0.0000
+    ##   3940        0.0496             nan     0.0100   -0.0000
+    ##   3960        0.0491             nan     0.0100   -0.0000
+    ##   3980        0.0487             nan     0.0100   -0.0000
+    ##   4000        0.0483             nan     0.0100   -0.0000
+    ##   4020        0.0477             nan     0.0100    0.0000
+    ##   4040        0.0473             nan     0.0100   -0.0000
+    ##   4060        0.0469             nan     0.0100   -0.0000
+    ##   4080        0.0465             nan     0.0100   -0.0000
+    ##   4100        0.0461             nan     0.0100   -0.0000
+    ##   4120        0.0457             nan     0.0100   -0.0000
+    ##   4140        0.0453             nan     0.0100   -0.0000
+    ##   4160        0.0449             nan     0.0100   -0.0000
+    ##   4180        0.0446             nan     0.0100   -0.0000
+    ##   4200        0.0442             nan     0.0100   -0.0000
+    ##   4220        0.0438             nan     0.0100   -0.0000
+    ##   4240        0.0435             nan     0.0100   -0.0000
+    ##   4260        0.0431             nan     0.0100   -0.0000
+    ##   4280        0.0428             nan     0.0100   -0.0000
+    ##   4300        0.0424             nan     0.0100   -0.0000
+    ##   4320        0.0421             nan     0.0100   -0.0000
+    ##   4340        0.0418             nan     0.0100   -0.0000
+    ##   4360        0.0414             nan     0.0100   -0.0000
+    ##   4380        0.0411             nan     0.0100   -0.0000
+    ##   4400        0.0407             nan     0.0100   -0.0000
+    ##   4420        0.0404             nan     0.0100   -0.0000
+    ##   4440        0.0401             nan     0.0100   -0.0000
+    ##   4460        0.0398             nan     0.0100   -0.0000
+    ##   4480        0.0394             nan     0.0100   -0.0000
+    ##   4500        0.0391             nan     0.0100   -0.0000
+    ##   4520        0.0388             nan     0.0100   -0.0000
+    ##   4540        0.0385             nan     0.0100   -0.0000
+    ##   4560        0.0382             nan     0.0100   -0.0000
+    ##   4580        0.0379             nan     0.0100    0.0000
+    ##   4600        0.0377             nan     0.0100   -0.0000
+    ##   4620        0.0373             nan     0.0100   -0.0000
+    ##   4640        0.0371             nan     0.0100   -0.0000
+    ##   4660        0.0367             nan     0.0100   -0.0000
+    ##   4680        0.0365             nan     0.0100   -0.0000
+    ##   4700        0.0362             nan     0.0100   -0.0000
+    ##   4720        0.0359             nan     0.0100   -0.0000
+    ##   4740        0.0356             nan     0.0100   -0.0000
+    ##   4760        0.0354             nan     0.0100   -0.0000
+    ##   4780        0.0351             nan     0.0100   -0.0000
+    ##   4800        0.0348             nan     0.0100   -0.0000
+    ##   4820        0.0346             nan     0.0100   -0.0000
+    ##   4840        0.0342             nan     0.0100   -0.0000
+    ##   4860        0.0340             nan     0.0100   -0.0000
+    ##   4880        0.0337             nan     0.0100   -0.0000
+    ##   4900        0.0334             nan     0.0100   -0.0000
+    ##   4920        0.0331             nan     0.0100   -0.0000
+    ##   4940        0.0329             nan     0.0100   -0.0000
+    ##   4960        0.0326             nan     0.0100   -0.0000
+    ##   4980        0.0323             nan     0.0100   -0.0000
+    ##   5000        0.0321             nan     0.0100    0.0000
+    ##   5020        0.0318             nan     0.0100   -0.0000
+    ##   5040        0.0316             nan     0.0100   -0.0000
+    ##   5060        0.0313             nan     0.0100   -0.0000
+    ##   5080        0.0311             nan     0.0100   -0.0000
+    ##   5100        0.0308             nan     0.0100   -0.0000
+    ##   5120        0.0305             nan     0.0100   -0.0000
+    ##   5140        0.0303             nan     0.0100   -0.0000
+    ##   5160        0.0300             nan     0.0100   -0.0000
+    ##   5180        0.0298             nan     0.0100   -0.0000
+    ##   5200        0.0295             nan     0.0100   -0.0000
+    ##   5220        0.0293             nan     0.0100   -0.0000
+    ##   5240        0.0291             nan     0.0100    0.0000
+    ##   5260        0.0289             nan     0.0100   -0.0000
+    ##   5280        0.0286             nan     0.0100   -0.0000
+    ##   5300        0.0284             nan     0.0100   -0.0000
+    ##   5320        0.0282             nan     0.0100   -0.0000
+    ##   5340        0.0280             nan     0.0100   -0.0000
+    ##   5360        0.0278             nan     0.0100   -0.0000
+    ##   5380        0.0275             nan     0.0100   -0.0000
+    ##   5400        0.0273             nan     0.0100   -0.0000
+    ##   5420        0.0271             nan     0.0100   -0.0000
+    ##   5440        0.0269             nan     0.0100   -0.0000
+    ##   5460        0.0266             nan     0.0100   -0.0000
+    ##   5480        0.0264             nan     0.0100   -0.0000
+    ##   5500        0.0263             nan     0.0100   -0.0000
+    ##   5520        0.0260             nan     0.0100   -0.0000
+    ##   5540        0.0258             nan     0.0100   -0.0000
+    ##   5560        0.0256             nan     0.0100   -0.0000
+    ##   5580        0.0254             nan     0.0100   -0.0000
+    ##   5600        0.0252             nan     0.0100   -0.0000
+    ##   5620        0.0250             nan     0.0100   -0.0000
+    ##   5640        0.0249             nan     0.0100   -0.0000
+    ##   5660        0.0247             nan     0.0100   -0.0000
+    ##   5680        0.0245             nan     0.0100   -0.0000
+    ##   5700        0.0243             nan     0.0100   -0.0000
+    ##   5720        0.0241             nan     0.0100   -0.0000
+    ##   5740        0.0239             nan     0.0100   -0.0000
+    ##   5760        0.0237             nan     0.0100   -0.0000
+    ##   5780        0.0235             nan     0.0100   -0.0000
+    ##   5800        0.0233             nan     0.0100   -0.0000
+    ##   5820        0.0231             nan     0.0100   -0.0000
+    ##   5840        0.0229             nan     0.0100   -0.0000
+    ##   5860        0.0228             nan     0.0100   -0.0000
+    ##   5880        0.0226             nan     0.0100   -0.0000
+    ##   5900        0.0224             nan     0.0100   -0.0000
+    ##   5920        0.0223             nan     0.0100   -0.0000
+    ##   5940        0.0221             nan     0.0100   -0.0000
+    ##   5960        0.0219             nan     0.0100   -0.0000
+    ##   5980        0.0218             nan     0.0100   -0.0000
+    ##   6000        0.0216             nan     0.0100   -0.0000
+    ##   6020        0.0215             nan     0.0100   -0.0000
+    ##   6040        0.0213             nan     0.0100   -0.0000
+    ##   6060        0.0212             nan     0.0100   -0.0000
+    ##   6080        0.0210             nan     0.0100   -0.0000
+    ##   6100        0.0208             nan     0.0100   -0.0000
+    ##   6120        0.0207             nan     0.0100   -0.0000
+    ##   6140        0.0205             nan     0.0100   -0.0000
+    ##   6160        0.0204             nan     0.0100   -0.0000
+    ##   6180        0.0202             nan     0.0100   -0.0000
+    ##   6200        0.0201             nan     0.0100   -0.0000
+    ##   6220        0.0199             nan     0.0100   -0.0000
+    ##   6240        0.0198             nan     0.0100   -0.0000
+    ##   6260        0.0196             nan     0.0100   -0.0000
+    ##   6280        0.0195             nan     0.0100   -0.0000
+    ##   6300        0.0194             nan     0.0100   -0.0000
+    ##   6320        0.0192             nan     0.0100   -0.0000
+    ##   6340        0.0191             nan     0.0100   -0.0000
+    ##   6360        0.0189             nan     0.0100   -0.0000
+    ##   6380        0.0188             nan     0.0100   -0.0000
+    ##   6400        0.0187             nan     0.0100   -0.0000
+    ##   6420        0.0185             nan     0.0100   -0.0000
+    ##   6440        0.0184             nan     0.0100   -0.0000
+    ##   6460        0.0182             nan     0.0100   -0.0000
+    ##   6480        0.0181             nan     0.0100   -0.0000
+    ##   6500        0.0179             nan     0.0100   -0.0000
+    ##   6520        0.0178             nan     0.0100   -0.0000
+    ##   6540        0.0177             nan     0.0100   -0.0000
+    ##   6560        0.0175             nan     0.0100   -0.0000
+    ##   6580        0.0174             nan     0.0100   -0.0000
+    ##   6600        0.0173             nan     0.0100   -0.0000
     ##   6620        0.0172             nan     0.0100   -0.0000
-    ##   6640        0.0171             nan     0.0100   -0.0000
-    ##   6660        0.0170             nan     0.0100   -0.0000
-    ##   6680        0.0169             nan     0.0100   -0.0000
-    ##   6700        0.0167             nan     0.0100   -0.0000
-    ##   6720        0.0166             nan     0.0100   -0.0000
-    ##   6740        0.0165             nan     0.0100   -0.0000
-    ##   6760        0.0164             nan     0.0100   -0.0000
-    ##   6780        0.0163             nan     0.0100   -0.0000
-    ##   6800        0.0161             nan     0.0100   -0.0000
-    ##   6820        0.0160             nan     0.0100   -0.0000
-    ##   6840        0.0159             nan     0.0100   -0.0000
-    ##   6860        0.0158             nan     0.0100   -0.0000
-    ##   6880        0.0157             nan     0.0100   -0.0000
-    ##   6900        0.0156             nan     0.0100   -0.0000
-    ##   6920        0.0154             nan     0.0100   -0.0000
-    ##   6940        0.0153             nan     0.0100   -0.0000
-    ##   6960        0.0152             nan     0.0100   -0.0000
-    ##   6980        0.0151             nan     0.0100   -0.0000
-    ##   7000        0.0150             nan     0.0100   -0.0000
-    ##   7020        0.0149             nan     0.0100   -0.0000
-    ##   7040        0.0148             nan     0.0100   -0.0000
-    ##   7060        0.0147             nan     0.0100   -0.0000
-    ##   7080        0.0146             nan     0.0100   -0.0000
-    ##   7100        0.0145             nan     0.0100   -0.0000
-    ##   7120        0.0144             nan     0.0100   -0.0000
-    ##   7140        0.0143             nan     0.0100   -0.0000
-    ##   7160        0.0142             nan     0.0100   -0.0000
-    ##   7180        0.0141             nan     0.0100   -0.0000
-    ##   7200        0.0140             nan     0.0100   -0.0000
-    ##   7220        0.0138             nan     0.0100   -0.0000
-    ##   7240        0.0137             nan     0.0100   -0.0000
-    ##   7260        0.0137             nan     0.0100   -0.0000
-    ##   7280        0.0136             nan     0.0100   -0.0000
-    ##   7300        0.0135             nan     0.0100   -0.0000
-    ##   7320        0.0134             nan     0.0100   -0.0000
-    ##   7340        0.0133             nan     0.0100   -0.0000
-    ##   7360        0.0132             nan     0.0100   -0.0000
-    ##   7380        0.0131             nan     0.0100   -0.0000
-    ##   7400        0.0130             nan     0.0100   -0.0000
-    ##   7420        0.0129             nan     0.0100   -0.0000
-    ##   7440        0.0128             nan     0.0100   -0.0000
-    ##   7460        0.0127             nan     0.0100   -0.0000
-    ##   7480        0.0126             nan     0.0100   -0.0000
-    ##   7500        0.0125             nan     0.0100   -0.0000
-    ##   7520        0.0124             nan     0.0100   -0.0000
-    ##   7540        0.0123             nan     0.0100   -0.0000
-    ##   7560        0.0122             nan     0.0100   -0.0000
-    ##   7580        0.0122             nan     0.0100   -0.0000
-    ##   7600        0.0121             nan     0.0100   -0.0000
-    ##   7620        0.0120             nan     0.0100   -0.0000
-    ##   7640        0.0119             nan     0.0100   -0.0000
-    ##   7660        0.0118             nan     0.0100   -0.0000
-    ##   7680        0.0117             nan     0.0100   -0.0000
-    ##   7700        0.0116             nan     0.0100   -0.0000
-    ##   7720        0.0115             nan     0.0100   -0.0000
-    ##   7740        0.0114             nan     0.0100   -0.0000
-    ##   7760        0.0114             nan     0.0100   -0.0000
-    ##   7780        0.0113             nan     0.0100   -0.0000
-    ##   7800        0.0112             nan     0.0100   -0.0000
-    ##   7820        0.0111             nan     0.0100   -0.0000
-    ##   7840        0.0110             nan     0.0100   -0.0000
-    ##   7860        0.0109             nan     0.0100   -0.0000
-    ##   7880        0.0108             nan     0.0100   -0.0000
-    ##   7900        0.0108             nan     0.0100   -0.0000
-    ##   7920        0.0107             nan     0.0100   -0.0000
-    ##   7940        0.0106             nan     0.0100   -0.0000
-    ##   7960        0.0105             nan     0.0100   -0.0000
-    ##   7980        0.0104             nan     0.0100   -0.0000
-    ##   8000        0.0103             nan     0.0100   -0.0000
-    ##   8020        0.0103             nan     0.0100   -0.0000
-    ##   8040        0.0102             nan     0.0100   -0.0000
-    ##   8060        0.0101             nan     0.0100   -0.0000
-    ##   8080        0.0100             nan     0.0100   -0.0000
-    ##   8100        0.0100             nan     0.0100   -0.0000
-    ##   8120        0.0099             nan     0.0100   -0.0000
-    ##   8140        0.0098             nan     0.0100   -0.0000
-    ##   8160        0.0097             nan     0.0100   -0.0000
-    ##   8180        0.0097             nan     0.0100   -0.0000
-    ##   8200        0.0096             nan     0.0100   -0.0000
-    ##   8220        0.0095             nan     0.0100   -0.0000
-    ##   8240        0.0095             nan     0.0100   -0.0000
-    ##   8260        0.0094             nan     0.0100   -0.0000
-    ##   8280        0.0094             nan     0.0100   -0.0000
-    ##   8300        0.0093             nan     0.0100    0.0000
-    ##   8320        0.0092             nan     0.0100   -0.0000
-    ##   8340        0.0092             nan     0.0100   -0.0000
-    ##   8360        0.0091             nan     0.0100    0.0000
-    ##   8380        0.0090             nan     0.0100   -0.0000
-    ##   8400        0.0090             nan     0.0100   -0.0000
-    ##   8420        0.0089             nan     0.0100   -0.0000
-    ##   8440        0.0088             nan     0.0100   -0.0000
-    ##   8460        0.0088             nan     0.0100   -0.0000
-    ##   8480        0.0087             nan     0.0100   -0.0000
-    ##   8500        0.0087             nan     0.0100   -0.0000
-    ##   8520        0.0086             nan     0.0100   -0.0000
-    ##   8540        0.0085             nan     0.0100   -0.0000
-    ##   8560        0.0085             nan     0.0100   -0.0000
-    ##   8580        0.0084             nan     0.0100   -0.0000
-    ##   8600        0.0084             nan     0.0100   -0.0000
-    ##   8620        0.0083             nan     0.0100   -0.0000
-    ##   8640        0.0082             nan     0.0100   -0.0000
-    ##   8660        0.0082             nan     0.0100   -0.0000
-    ##   8680        0.0081             nan     0.0100   -0.0000
-    ##   8700        0.0080             nan     0.0100   -0.0000
-    ##   8720        0.0080             nan     0.0100   -0.0000
-    ##   8740        0.0079             nan     0.0100   -0.0000
-    ##   8760        0.0079             nan     0.0100   -0.0000
-    ##   8780        0.0078             nan     0.0100   -0.0000
-    ##   8800        0.0077             nan     0.0100   -0.0000
-    ##   8820        0.0077             nan     0.0100   -0.0000
-    ##   8840        0.0076             nan     0.0100    0.0000
-    ##   8860        0.0076             nan     0.0100   -0.0000
-    ##   8880        0.0075             nan     0.0100   -0.0000
-    ##   8900        0.0075             nan     0.0100   -0.0000
-    ##   8920        0.0074             nan     0.0100   -0.0000
-    ##   8940        0.0073             nan     0.0100   -0.0000
-    ##   8960        0.0073             nan     0.0100   -0.0000
-    ##   8980        0.0072             nan     0.0100   -0.0000
-    ##   9000        0.0072             nan     0.0100   -0.0000
-    ##   9020        0.0071             nan     0.0100   -0.0000
-    ##   9040        0.0071             nan     0.0100   -0.0000
-    ##   9060        0.0070             nan     0.0100   -0.0000
-    ##   9080        0.0070             nan     0.0100   -0.0000
-    ##   9100        0.0069             nan     0.0100   -0.0000
-    ##   9120        0.0069             nan     0.0100   -0.0000
-    ##   9140        0.0068             nan     0.0100   -0.0000
-    ##   9160        0.0068             nan     0.0100   -0.0000
-    ##   9180        0.0067             nan     0.0100   -0.0000
-    ##   9200        0.0067             nan     0.0100   -0.0000
-    ##   9220        0.0066             nan     0.0100   -0.0000
-    ##   9240        0.0066             nan     0.0100   -0.0000
-    ##   9260        0.0065             nan     0.0100   -0.0000
-    ##   9280        0.0065             nan     0.0100   -0.0000
-    ##   9300        0.0064             nan     0.0100   -0.0000
-    ##   9320        0.0064             nan     0.0100   -0.0000
-    ##   9340        0.0063             nan     0.0100   -0.0000
-    ##   9360        0.0063             nan     0.0100   -0.0000
-    ##   9380        0.0062             nan     0.0100   -0.0000
-    ##   9400        0.0062             nan     0.0100   -0.0000
-    ##   9420        0.0062             nan     0.0100   -0.0000
-    ##   9440        0.0061             nan     0.0100   -0.0000
-    ##   9460        0.0061             nan     0.0100   -0.0000
-    ##   9480        0.0060             nan     0.0100    0.0000
-    ##   9500        0.0060             nan     0.0100   -0.0000
-    ##   9520        0.0060             nan     0.0100   -0.0000
-    ##   9540        0.0059             nan     0.0100   -0.0000
-    ##   9560        0.0059             nan     0.0100   -0.0000
-    ##   9580        0.0058             nan     0.0100   -0.0000
-    ##   9600        0.0058             nan     0.0100   -0.0000
-    ##   9620        0.0057             nan     0.0100   -0.0000
-    ##   9640        0.0057             nan     0.0100   -0.0000
-    ##   9660        0.0057             nan     0.0100   -0.0000
-    ##   9680        0.0056             nan     0.0100   -0.0000
-    ##   9700        0.0056             nan     0.0100   -0.0000
-    ##   9720        0.0055             nan     0.0100   -0.0000
-    ##   9740        0.0055             nan     0.0100   -0.0000
-    ##   9760        0.0055             nan     0.0100   -0.0000
-    ##   9780        0.0054             nan     0.0100   -0.0000
-    ##   9800        0.0054             nan     0.0100   -0.0000
-    ##   9820        0.0054             nan     0.0100   -0.0000
-    ##   9840        0.0053             nan     0.0100   -0.0000
-    ##   9860        0.0053             nan     0.0100   -0.0000
-    ##   9880        0.0052             nan     0.0100    0.0000
-    ##   9900        0.0052             nan     0.0100   -0.0000
-    ##   9920        0.0052             nan     0.0100   -0.0000
-    ##   9940        0.0051             nan     0.0100   -0.0000
-    ##   9960        0.0051             nan     0.0100   -0.0000
-    ##   9980        0.0050             nan     0.0100    0.0000
-    ##  10000        0.0050             nan     0.0100   -0.0000
+    ##   6640        0.0170             nan     0.0100   -0.0000
+    ##   6660        0.0169             nan     0.0100   -0.0000
+    ##   6680        0.0168             nan     0.0100   -0.0000
+    ##   6700        0.0166             nan     0.0100   -0.0000
+    ##   6720        0.0165             nan     0.0100   -0.0000
+    ##   6740        0.0164             nan     0.0100   -0.0000
+    ##   6760        0.0162             nan     0.0100   -0.0000
+    ##   6780        0.0161             nan     0.0100   -0.0000
+    ##   6800        0.0160             nan     0.0100   -0.0000
+    ##   6820        0.0159             nan     0.0100   -0.0000
+    ##   6840        0.0158             nan     0.0100   -0.0000
+    ##   6860        0.0156             nan     0.0100   -0.0000
+    ##   6880        0.0155             nan     0.0100   -0.0000
+    ##   6900        0.0154             nan     0.0100   -0.0000
+    ##   6920        0.0153             nan     0.0100    0.0000
+    ##   6940        0.0152             nan     0.0100   -0.0000
+    ##   6960        0.0150             nan     0.0100   -0.0000
+    ##   6980        0.0149             nan     0.0100   -0.0000
+    ##   7000        0.0148             nan     0.0100   -0.0000
+    ##   7020        0.0147             nan     0.0100   -0.0000
+    ##   7040        0.0146             nan     0.0100   -0.0000
+    ##   7060        0.0145             nan     0.0100   -0.0000
+    ##   7080        0.0144             nan     0.0100   -0.0000
+    ##   7100        0.0143             nan     0.0100   -0.0000
+    ##   7120        0.0142             nan     0.0100   -0.0000
+    ##   7140        0.0140             nan     0.0100   -0.0000
+    ##   7160        0.0139             nan     0.0100   -0.0000
+    ##   7180        0.0138             nan     0.0100   -0.0000
+    ##   7200        0.0137             nan     0.0100   -0.0000
+    ##   7220        0.0136             nan     0.0100   -0.0000
+    ##   7240        0.0135             nan     0.0100   -0.0000
+    ##   7260        0.0134             nan     0.0100   -0.0000
+    ##   7280        0.0133             nan     0.0100   -0.0000
+    ##   7300        0.0132             nan     0.0100   -0.0000
+    ##   7320        0.0131             nan     0.0100   -0.0000
+    ##   7340        0.0130             nan     0.0100   -0.0000
+    ##   7360        0.0129             nan     0.0100   -0.0000
+    ##   7380        0.0128             nan     0.0100   -0.0000
+    ##   7400        0.0127             nan     0.0100   -0.0000
+    ##   7420        0.0126             nan     0.0100   -0.0000
+    ##   7440        0.0126             nan     0.0100   -0.0000
+    ##   7460        0.0125             nan     0.0100   -0.0000
+    ##   7480        0.0124             nan     0.0100   -0.0000
+    ##   7500        0.0123             nan     0.0100   -0.0000
+    ##   7520        0.0122             nan     0.0100   -0.0000
+    ##   7540        0.0121             nan     0.0100   -0.0000
+    ##   7560        0.0120             nan     0.0100   -0.0000
+    ##   7580        0.0119             nan     0.0100   -0.0000
+    ##   7600        0.0119             nan     0.0100   -0.0000
+    ##   7620        0.0118             nan     0.0100   -0.0000
+    ##   7640        0.0117             nan     0.0100   -0.0000
+    ##   7660        0.0116             nan     0.0100   -0.0000
+    ##   7680        0.0115             nan     0.0100   -0.0000
+    ##   7700        0.0114             nan     0.0100   -0.0000
+    ##   7720        0.0113             nan     0.0100   -0.0000
+    ##   7740        0.0112             nan     0.0100   -0.0000
+    ##   7760        0.0112             nan     0.0100   -0.0000
+    ##   7780        0.0111             nan     0.0100   -0.0000
+    ##   7800        0.0110             nan     0.0100    0.0000
+    ##   7820        0.0109             nan     0.0100   -0.0000
+    ##   7840        0.0108             nan     0.0100   -0.0000
+    ##   7860        0.0108             nan     0.0100   -0.0000
+    ##   7880        0.0107             nan     0.0100   -0.0000
+    ##   7900        0.0106             nan     0.0100   -0.0000
+    ##   7920        0.0105             nan     0.0100   -0.0000
+    ##   7940        0.0104             nan     0.0100   -0.0000
+    ##   7960        0.0103             nan     0.0100   -0.0000
+    ##   7980        0.0103             nan     0.0100   -0.0000
+    ##   8000        0.0102             nan     0.0100   -0.0000
+    ##   8020        0.0101             nan     0.0100   -0.0000
+    ##   8040        0.0101             nan     0.0100   -0.0000
+    ##   8060        0.0100             nan     0.0100   -0.0000
+    ##   8080        0.0099             nan     0.0100   -0.0000
+    ##   8100        0.0098             nan     0.0100   -0.0000
+    ##   8120        0.0098             nan     0.0100   -0.0000
+    ##   8140        0.0097             nan     0.0100   -0.0000
+    ##   8160        0.0096             nan     0.0100   -0.0000
+    ##   8180        0.0095             nan     0.0100   -0.0000
+    ##   8200        0.0095             nan     0.0100   -0.0000
+    ##   8220        0.0094             nan     0.0100   -0.0000
+    ##   8240        0.0093             nan     0.0100   -0.0000
+    ##   8260        0.0092             nan     0.0100   -0.0000
+    ##   8280        0.0092             nan     0.0100   -0.0000
+    ##   8300        0.0091             nan     0.0100   -0.0000
+    ##   8320        0.0091             nan     0.0100   -0.0000
+    ##   8340        0.0090             nan     0.0100   -0.0000
+    ##   8360        0.0089             nan     0.0100   -0.0000
+    ##   8380        0.0089             nan     0.0100   -0.0000
+    ##   8400        0.0088             nan     0.0100   -0.0000
+    ##   8420        0.0087             nan     0.0100   -0.0000
+    ##   8440        0.0087             nan     0.0100   -0.0000
+    ##   8460        0.0086             nan     0.0100   -0.0000
+    ##   8480        0.0086             nan     0.0100   -0.0000
+    ##   8500        0.0085             nan     0.0100   -0.0000
+    ##   8520        0.0084             nan     0.0100   -0.0000
+    ##   8540        0.0084             nan     0.0100    0.0000
+    ##   8560        0.0083             nan     0.0100   -0.0000
+    ##   8580        0.0083             nan     0.0100   -0.0000
+    ##   8600        0.0082             nan     0.0100   -0.0000
+    ##   8620        0.0081             nan     0.0100   -0.0000
+    ##   8640        0.0081             nan     0.0100   -0.0000
+    ##   8660        0.0080             nan     0.0100   -0.0000
+    ##   8680        0.0080             nan     0.0100   -0.0000
+    ##   8700        0.0079             nan     0.0100   -0.0000
+    ##   8720        0.0078             nan     0.0100   -0.0000
+    ##   8740        0.0078             nan     0.0100   -0.0000
+    ##   8760        0.0077             nan     0.0100   -0.0000
+    ##   8780        0.0077             nan     0.0100   -0.0000
+    ##   8800        0.0076             nan     0.0100   -0.0000
+    ##   8820        0.0075             nan     0.0100   -0.0000
+    ##   8840        0.0075             nan     0.0100   -0.0000
+    ##   8860        0.0074             nan     0.0100   -0.0000
+    ##   8880        0.0074             nan     0.0100   -0.0000
+    ##   8900        0.0073             nan     0.0100   -0.0000
+    ##   8920        0.0073             nan     0.0100   -0.0000
+    ##   8940        0.0072             nan     0.0100   -0.0000
+    ##   8960        0.0072             nan     0.0100   -0.0000
+    ##   8980        0.0071             nan     0.0100   -0.0000
+    ##   9000        0.0071             nan     0.0100   -0.0000
+    ##   9020        0.0070             nan     0.0100   -0.0000
+    ##   9040        0.0069             nan     0.0100   -0.0000
+    ##   9060        0.0069             nan     0.0100   -0.0000
+    ##   9080        0.0068             nan     0.0100   -0.0000
+    ##   9100        0.0068             nan     0.0100    0.0000
+    ##   9120        0.0067             nan     0.0100   -0.0000
+    ##   9140        0.0067             nan     0.0100   -0.0000
+    ##   9160        0.0067             nan     0.0100   -0.0000
+    ##   9180        0.0066             nan     0.0100   -0.0000
+    ##   9200        0.0066             nan     0.0100   -0.0000
+    ##   9220        0.0065             nan     0.0100   -0.0000
+    ##   9240        0.0065             nan     0.0100   -0.0000
+    ##   9260        0.0064             nan     0.0100   -0.0000
+    ##   9280        0.0064             nan     0.0100   -0.0000
+    ##   9300        0.0063             nan     0.0100   -0.0000
+    ##   9320        0.0063             nan     0.0100   -0.0000
+    ##   9340        0.0062             nan     0.0100   -0.0000
+    ##   9360        0.0062             nan     0.0100   -0.0000
+    ##   9380        0.0061             nan     0.0100   -0.0000
+    ##   9400        0.0061             nan     0.0100   -0.0000
+    ##   9420        0.0060             nan     0.0100   -0.0000
+    ##   9440        0.0060             nan     0.0100   -0.0000
+    ##   9460        0.0060             nan     0.0100   -0.0000
+    ##   9480        0.0059             nan     0.0100   -0.0000
+    ##   9500        0.0059             nan     0.0100   -0.0000
+    ##   9520        0.0058             nan     0.0100   -0.0000
+    ##   9540        0.0058             nan     0.0100   -0.0000
+    ##   9560        0.0057             nan     0.0100   -0.0000
+    ##   9580        0.0057             nan     0.0100   -0.0000
+    ##   9600        0.0057             nan     0.0100   -0.0000
+    ##   9620        0.0056             nan     0.0100   -0.0000
+    ##   9640        0.0056             nan     0.0100   -0.0000
+    ##   9660        0.0055             nan     0.0100   -0.0000
+    ##   9680        0.0055             nan     0.0100   -0.0000
+    ##   9700        0.0055             nan     0.0100   -0.0000
+    ##   9720        0.0054             nan     0.0100   -0.0000
+    ##   9740        0.0054             nan     0.0100   -0.0000
+    ##   9760        0.0053             nan     0.0100   -0.0000
+    ##   9780        0.0053             nan     0.0100   -0.0000
+    ##   9800        0.0053             nan     0.0100   -0.0000
+    ##   9820        0.0052             nan     0.0100   -0.0000
+    ##   9840        0.0052             nan     0.0100   -0.0000
+    ##   9860        0.0052             nan     0.0100   -0.0000
+    ##   9880        0.0051             nan     0.0100   -0.0000
+    ##   9900        0.0051             nan     0.0100   -0.0000
+    ##   9920        0.0050             nan     0.0100   -0.0000
+    ##   9940        0.0050             nan     0.0100   -0.0000
+    ##   9960        0.0050             nan     0.0100   -0.0000
+    ##   9980        0.0049             nan     0.0100   -0.0000
+    ##  10000        0.0049             nan     0.0100   -0.0000
 
 ``` r
 save(gbmtest, file = "gbmtestLivestock.Rdata")
@@ -10838,7 +10889,7 @@ best.iter <- gbm.perf(gbmtest,method="cv",plot.it=FALSE) #this gives you the opt
 print(best.iter)
 ```
 
-    ## [1] 3859
+    ## [1] 3529
 
 ``` r
 gbm_error = data.frame(train.error = gbmtest$train.error,
@@ -10862,8 +10913,8 @@ ggsave(filename = "deviance_RoadAnimalNightLcClimateCountryLivestock.jpg",
 (proc.time()-ptm)/60
 ```
 
-    ##       user     system    elapsed 
-    ## 2.49516667 0.07083333 5.55783333
+    ##     user   system  elapsed 
+    ## 2.659333 0.055500 6.181667
 
 ``` r
 # output predictions on the TRAINING SET
@@ -10931,7 +10982,7 @@ print(auc)
 ```
 
     ##              [,1]
-    ## 0 vs. 1 0.9830247
+    ## 0 vs. 1 0.9938106
 
 ``` r
 pred<-prediction(output[,1],output[,2])
@@ -11142,6 +11193,10 @@ for (i in 1:length(varlist)){#begin for loop through variables
 
 ![](ungulates_asf_pigs_files/figure-markdown_github/partial_dependence1-22.png)
 
+    ## [1] 23
+
+![](ungulates_asf_pigs_files/figure-markdown_github/partial_dependence1-23.png)
+
 ``` r
 out_partial = out
 save(out_partial, file = "out_partial.Rdata")
@@ -11213,12 +11268,12 @@ head(out)
 ```
 
     ##   variable.value     value variable.name             var
-    ## 1      -9.210340 -1.732268  log_chickens marginal.effect
-    ## 2      -9.021874 -1.732268  log_chickens marginal.effect
-    ## 3      -8.833407 -1.732268  log_chickens marginal.effect
-    ## 4      -8.644940 -1.732268  log_chickens marginal.effect
-    ## 5      -8.456474 -1.732268  log_chickens marginal.effect
-    ## 6      -8.268007 -1.732268  log_chickens marginal.effect
+    ## 1      -9.210340 -1.859208      log_pigs marginal.effect
+    ## 2      -9.055871 -1.865494      log_pigs marginal.effect
+    ## 3      -8.901402 -1.865494      log_pigs marginal.effect
+    ## 4      -8.746933 -1.865494      log_pigs marginal.effect
+    ## 5      -8.592464 -1.872395      log_pigs marginal.effect
+    ## 6      -8.437995 -1.872395      log_pigs marginal.effect
 
 ``` r
 out$value = round(out$value, digits = 1)
@@ -12157,7 +12212,8 @@ mp<- ggplot()+world
     mp <- mp+
    geom_tile(data = pred_gbm_season, aes(x = x, y = y, alpha = predicted))
   ggsave("predictedLivestock.jpg", plot = mp, height = 7, width = 7*2)
-  
+
+  #ggsave(filename = "predicted.jpg",plot = mp)  
 pred.xy = pred_gbm_season[,c("x", "y", "predicted")]
 
 out_spdf = SpatialPointsDataFrame(coords = pred.xy[,c("x", "y")], 
@@ -12232,7 +12288,7 @@ for (a in 1:nrows){
 ```
 
     ##     user   system  elapsed 
-    ## 7.065500 0.072500 7.140833
+    ## 7.693167 0.070000 7.768833
 
 ``` r
 #save(distances, file = "distances.Rdata")
@@ -12272,7 +12328,7 @@ mp
     ## 
     ##     hexbinplot
 
-![](ungulates_asf_pigs_files/figure-markdown_github/unnamed-chunk-13-1.png)
+![](ungulates_asf_pigs_files/figure-markdown_github/unnamed-chunk-14-1.png)
 
 ``` r
 ggsave(plot = mp, filename = "points_90percent_predicted_over_1deg_outbreak_swine_swine.jpg")
@@ -12306,7 +12362,7 @@ theme(legend.position="bottom")+
 mp
 ```
 
-![](ungulates_asf_pigs_files/figure-markdown_github/unnamed-chunk-14-1.png)
+![](ungulates_asf_pigs_files/figure-markdown_github/unnamed-chunk-15-1.png)
 
 ``` r
 ggsave(plot = mp, filename = "points_90percent_predicted_under_1deg_outbreak_swine_swine.jpg")
@@ -12345,7 +12401,7 @@ for (a in 1:dim(df)[1]){
 ```
 
     ##     user   system  elapsed 
-    ## 15.45317 15.37133 30.92267
+    ## 15.38233 12.12933 27.61467
 
 ``` r
 out_sub = subset(out, predicted < 0.25 & diff_predicted > 0.5)

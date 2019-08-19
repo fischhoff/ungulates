@@ -107,6 +107,18 @@ df_sum <- df %>%
 df_sum
 ```
 
+
+###Check if Russia, China reporting
+```{r}
+load("E.Rdata")
+df_C= subset(E, country == "China")
+dim(df_C)
+unique(df_C$year)
+test = subset(df_C, is.na(year))
+df_R= subset(E, country == "Russian Federation")
+unique(df_R$year)
+```
+
 ####Parse species field
 Make separate row for each animal host species. Separate by commas. Create fields animal.origin (wild vs. domestic) and animal.species. Save out.Rdata
 ```{r parse_species}
@@ -381,12 +393,14 @@ load("dfNDVI.Rdata")
 
 ```
 #subset just African swine fever in pigs
-```{r}
+```{r subset_swine_asf}
 load("dfNDVI.Rdata")
 df = dfNDVI
 df = subset(df, animal.species == "swine" & disease == "African swine fever")
 dfNDVI = df
 save(dfNDVI, file = "dfNDVI.Rdata")
+dim(dfNDVI)
+unique(dfNDVI$year)
 ```
 
 
@@ -1975,7 +1989,8 @@ mp<- ggplot()+world
     mp <- mp+
    geom_tile(data = pred_gbm_season, aes(x = x, y = y, alpha = predicted))
   ggsave("predictedLivestock.jpg", plot = mp, height = 7, width = 7*2)
-  
+
+  #ggsave(filename = "predicted.jpg",plot = mp)  
 pred.xy = pred_gbm_season[,c("x", "y", "predicted")]
 
 out_spdf = SpatialPointsDataFrame(coords = pred.xy[,c("x", "y")], 
