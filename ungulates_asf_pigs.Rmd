@@ -1,7 +1,7 @@
 ---
 title: "ungulates"
 author: "Ilya"
-date: "7/5/2019"
+date: "8/29/2019"
 output: github_document
 ---
 
@@ -21,7 +21,7 @@ pkgTest <- function(x)
   library(x, character.only = TRUE)
 }
 neededPackages <- c("leaflet", "raster", "mapview", "sp", "ggmap",
-                    "rasterVis",   "ggplot2", "dplyr", "RgoogleMaps", "rworldmap", "lubridate", "zoo", "broom", "caret", "gbm", "caTools", "ROCR")
+                    "rasterVis",   "ggplot2", "dplyr", "RgoogleMaps", "rworldmap", "lubridate", "zoo", "broom", "caret", "gbm", "caTools", "ROCR", "pdp", "cowplot")
 
 for (package in neededPackages){pkgTest(package)}
 
@@ -404,7 +404,7 @@ unique(dfNDVI$year)
 ```
 
 
-##land cover
+##land cover (source: https://e4ftl01.cr.usgs.gov/MOTA/MCD12C1.006/)
 ```{r modis_land_cover}
 load("dfNDVI.Rdata")
 rm = c("NDVI.x",
@@ -718,7 +718,28 @@ record_count <- df %>%
 
 record_count_5 = subset(record_count, n >=5)
 df = subset(df, species %in% record_count_5$species)
+df_Ornithodoros = df
+save(df_Ornithodoros, file = "df_Ornithodoros.Rdata")
 ```
+
+#plot Ornithodoros
+```{r}
+load("df_Ornithodoros.Rdata")
+df = df_Ornithodoros
+world <- borders("world", ylim = c(-60,80))
+
+
+mp<- ggplot()+world
+
+    mp <- mp+
+   geom_point(data = df, aes(x = decimalLongitude, y = decimalLatitude, color = species))
+  ggsave("Ornithodoros_points.jpg", plot = mp, height = 7, width = 7*2)
+
+```
+
+
+
+
 
 ##assign worldclim climate variables to outbreak and background points
 ```{r worldclim1}
@@ -731,6 +752,24 @@ grids <- list.files(path , pattern = "*.tif$")
 w <- stack(paste0(path, grids))
 
 projection(w) <-CRS("+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0")
+
+#https://stackoverflow.com/questions/35580730/raster-of-latitudes-and-longitudes/35592230
+#create a raster of latitudes
+r <- raster(extent(-180, 180, -90, 90), res=1)
+lat <- lon <- r
+xy <- coordinates(r)
+lon[] <- xy[, 1]
+lat[] <- xy[, 2]
+
+#x = object to be resampled
+#y = object to be resampled to
+#resample with nearest neighbor for categorical data 
+#https://gis.stackexchange.com/questions/314960/resampling-raster-with-categorical-data-in-r
+r_lat_resampled = resample(x = lat, y = w)
+names(r_lat_resampled)="latitude"
+
+w = addLayer(w, r_lat_resampled)
+
 ```
 
 #add ecoregion to w
@@ -748,8 +787,7 @@ w = addLayer(w, r_eco_resampled)
 ```
 
 
-
-#use (worldclim and ecoregion) predictors to make predictions about Ornithodoros
+#use (worldclim, latitude, and ecoregion) predictors to make predictions about Ornithodoros
 ```{r orn_preds}
 library(dismo)
 # get predictor variables
@@ -784,7 +822,7 @@ df = subset(df, species %in% record_count_5$species)
 
 uspecies = unique(df$species)
 
-pdf("myOut1.pdf")
+pdf("myOut_percentile_latitude.pdf")
 
 a = 1#get predictions for just one species
 
@@ -795,10 +833,8 @@ r_out = raster(nrows = dims[1],
                ncols = dims[2])
 
 names(r_out) = "placeholder"
-
 for (a in 1:length(uspecies)){
-#for (a in 1){
-  
+
   print(a)
   occ <- subset(df, species == uspecies[a])
   
@@ -817,6 +853,12 @@ for (a in 1:length(uspecies)){
   
   #make prediction
   p <- predict(me, predictors, progress='text')
+#  p_percentile <- calc(p, fun = quantile(probs = seq(from = 0, to = 1, by = 0.01)))
+  p_points = rasterToPoints(p, spatial=TRUE)#convert to Points
+  p_points$layer_percentile = percent_rank(p_points$layer)#calc percent_rank using dplyr
+  p_raster = rasterize(x = p_points, y = p, field = "layer_percentile")#rasterize 
+  p = p_raster#now go back and reassign p_raster to p
+  
   names(p)= uspecies[a]
   
   r_out = addLayer(r_out, p)
@@ -1221,6 +1263,8 @@ x.df$variable_plot[x.df$variable_plot=="log_pigs"]="log pig density"
 x.df$variable_plot[x.df$variable_plot=="log_chickens"]="log chickens"
 x.df$variable_plot[x.df$variable_plot=="ecoregionSarmaticMixedForests"]="Sarmatic forests ecoregion"
 x.df$variable_plot[x.df$variable_plot=="countryIndia"]="India"
+x.df$variable_plot[x.df$variable_plot=="countrGeorgia"]="Georgia"
+x.df$variable_plot[x.df$variable_plot=="countryBelarus"]="Belarus"
 x.df$variable_plot[x.df$variable_plot=="log_road_sheep"]="log road X sheep"
 
 x.df$variable_plot = factor(x.df$variable_plot, levels = x.df$variable_plot[order(x.df$relative.influence)])
@@ -1372,6 +1416,970 @@ plot
 dev.off()
 
 ```
+
+###partial dependency -- alternative method -- ticks only
+```{r}
+
+#source("partial_dependency_ticks.R")
+```
+
+###partial dependency -- alternative method -- all else
+```{r}
+
+#source("partial_dependency_all_else.R")
+```
+
+
+##PARTIAL dependency -- JP Schmidt method w/ adjustments -- non-ticks
+```{r}
+# Create plots of marginal effects
+scale = 0.98
+load("TrainLivestock.Rdata")
+load("gbmtestLivestock.Rdata")
+library(gbm)
+library(cowplot)
+library(pdp)
+library(dplyr)
+library(ggplot2)
+library(grid)
+library(gridExtra)
+best.iter <- gbm.perf(gbmtest,method="cv",plot.it=FALSE) #this gives you the optimal number of trees based on cv performance, other methods will over or under predict
+
+ls<-partial(gbmtest,n.trees=best.iter, "log_pigs",prob=TRUE)
+
+plot1 <- ls %>%
+  select(log_pigs, yhat) %>%
+  na.omit() %>%
+  ggplot() +
+  geom_line(aes(x = log_pigs, y = yhat),color="red") +
+  # ylim(0.,1) +
+  ylab(" ") +
+  theme_minimal() +
+  theme(axis.title.x = element_blank())+ theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
+  theme(axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())
+
+plot2 <- Train %>%
+  select(log_pigs) %>%
+  na.omit() %>%
+  ggplot(aes(log_pigs)) +
+  geom_histogram(fill="lightblue") +
+  scale_y_continuous(position="right",breaks = function(x) unique(floor(pretty(seq(0, (max(x) + 1) * 1.1)))))+
+  ylab(" ") +
+  theme_minimal() +
+  theme(axis.title.x = element_blank())+
+  theme(plot.margin=unit(c(0,0,0,1.25),"cm"))
+
+p1 <- add_sub(plot1," ")
+p2 <- add_sub(plot2,"log (pigs)",size=12)
+
+aligned <- align_plots(p1, p2, align = "v")
+pigs <- ggdraw()+
+  draw_plot(aligned[[2]])+
+  draw_plot(aligned[[1]],
+            scale = scale)
+
+###chickens
+lc<-partial(gbmtest,n.trees=best.iter, "log_chickens",prob=TRUE)
+
+plot1 <- lc %>%
+  select(log_chickens, yhat) %>%
+  na.omit() %>%
+  ggplot() +
+  geom_line(aes(x = log_chickens, y = yhat),color="red") +
+  # ylim(0.,1) +
+  ylab(" ") +
+  theme_minimal() +
+  theme(axis.title.x = element_blank())+ theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
+  theme(axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())
+
+plot2 <- Train %>%
+  select(log_chickens) %>%
+  na.omit() %>%
+  ggplot(aes(log_chickens)) +
+  geom_histogram(fill="lightblue") +
+  scale_y_continuous(position="right",breaks = function(x) unique(floor(pretty(seq(0, (max(x) + 1) * 1.1)))))+
+  ylab(" ") +
+  theme_minimal() +
+  theme(axis.title.x = element_blank())+
+  theme(plot.margin=unit(c(0,0,0,1.25),"cm"))
+
+p1 <- add_sub(plot1," ")
+p2 <- add_sub(plot2,"log (chickens)",size=12)
+aligned <- align_plots(p1, p2, align = "v")
+plc <- ggdraw()+
+  draw_plot(aligned[[2]])+
+  draw_plot(aligned[[1]],
+            scale = scale)
+
+
+lca<-partial(gbmtest,n.trees=best.iter, "log_cattle",prob=TRUE)
+
+plot1 <- lca %>%
+  select(log_cattle, yhat) %>%
+  na.omit() %>%
+  ggplot() +
+  geom_line(aes(x = log_cattle, y = yhat),color="red") +
+  # ylim(0.,1) +
+  ylab(" ") +
+  theme_minimal() +
+  theme(axis.title.x = element_blank())+ theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
+  theme(axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())
+
+plot2 <- Train %>%
+  select(log_cattle) %>%
+  na.omit() %>%
+  ggplot(aes(log_cattle)) +
+  geom_histogram(fill="lightblue") +
+  scale_y_continuous(position="right",breaks = function(x) unique(floor(pretty(seq(0, (max(x) + 1) * 1.1)))))+
+  ylab(" ") +
+  theme_minimal() +
+  theme(axis.title.x = element_blank())+
+  theme(plot.margin=unit(c(0,0,0,1.25),"cm"))
+
+p1 <- add_sub(plot1," ")
+p2 <- add_sub(plot2,"log (cattle)",size=12)
+aligned <- align_plots(p1, p2, align = "v")
+plca <- ggdraw()+
+  draw_plot(aligned[[2]])+
+  draw_plot(aligned[[1]],
+            scale = scale)
+
+###African warthog
+caf<-partial(gbmtest,n.trees=best.iter, "Phacochoerus_africanus",prob=TRUE)
+
+plot1 <- caf %>%
+  select(Phacochoerus_africanus, yhat) %>%
+  na.omit() %>%
+  ggplot() +
+  geom_line(aes(x = Phacochoerus_africanus, y = yhat),color="red") +
+  # ylim(0.,1) +
+  ylab(" ") +
+  theme_minimal() +
+  theme(axis.title.x = element_blank())+ theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
+  theme(axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())
+
+plot2 <- Train %>%
+  select(Phacochoerus_africanus) %>%
+  na.omit() %>%
+  ggplot(aes(Phacochoerus_africanus)) +
+  geom_histogram(fill="lightblue") +
+  scale_y_continuous(position="right",breaks = function(x) unique(floor(pretty(seq(0, (max(x) + 1) * 1.1)))))+
+  ylab(" ") +
+  theme_minimal() +
+  theme(axis.title.x = element_blank())+
+  theme(plot.margin=unit(c(0,0,0,1.25),"cm"))
+
+p1 <- add_sub(plot1," ")
+p2 <- add_sub(plot2,"Phacochoerus africanus range",size=12)
+aligned <- align_plots(p1, p2, align = "v")
+pcaf <- ggdraw()+
+  draw_plot(aligned[[2]])+
+  draw_plot(aligned[[1]],
+            scale = scale)
+
+###nightlights
+caf<-partial(gbmtest,n.trees=best.iter, "nightlights2013",prob=TRUE)
+
+plot1 <- caf %>%
+  select(nightlights2013, yhat) %>%
+  na.omit() %>%
+  ggplot() +
+  geom_line(aes(x = nightlights2013, y = yhat),color="red") +
+  # ylim(0.,1) +
+  ylab(" ") +
+  theme_minimal() +
+  theme(axis.title.x = element_blank())+ theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
+  theme(axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())
+
+plot2 <- Train %>%
+  select(nightlights2013) %>%
+  na.omit() %>%
+  ggplot(aes(nightlights2013)) +
+  geom_histogram(fill="lightblue") +
+  scale_y_continuous(position="right",breaks = function(x) unique(floor(pretty(seq(0, (max(x) + 1) * 1.1)))))+
+  ylab(" ") +
+  theme_minimal() +
+  theme(axis.title.x = element_blank())+
+  theme(plot.margin=unit(c(0,0,0,1.25),"cm"))
+
+p1 <- add_sub(plot1," ")
+p2 <- add_sub(plot2,"nightlights",size=12)
+aligned <- align_plots(p1, p2, align = "v")
+pnt <- ggdraw()+
+  draw_plot(aligned[[2]])+
+  draw_plot(aligned[[1]],
+            scale = scale)
+
+#Sus scrofa
+caf<-partial(gbmtest,n.trees=best.iter, "Sus_scrofa",prob=TRUE)
+
+plot1 <- caf %>%
+  select(Sus_scrofa, yhat) %>%
+  na.omit() %>%
+  ggplot() +
+  geom_line(aes(x = Sus_scrofa, y = yhat),color="red") +
+  # ylim(0.,1) +
+  ylab(" ") +
+  theme_minimal() +
+  theme(axis.title.x = element_blank())+ theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
+  theme(axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())
+
+plot2 <- Train %>%
+  select(Sus_scrofa) %>%
+  na.omit() %>%
+  ggplot(aes(Sus_scrofa)) +
+  geom_histogram(fill="lightblue") +
+  scale_y_continuous(position="right",breaks = function(x) unique(floor(pretty(seq(0, (max(x) + 1) * 1.1)))))+
+  ylab(" ") +
+  theme_minimal() +
+  theme(axis.title.x = element_blank())+
+  theme(plot.margin=unit(c(0,0,0,1.25),"cm"))
+
+p1 <- add_sub(plot1," ")
+p2 <- add_sub(plot2,"Sus scrofa range",size=12)
+aligned <- align_plots(p1, p2, align = "v")
+pss <- ggdraw()+
+  draw_plot(aligned[[2]])+
+  draw_plot(aligned[[1]],
+            scale = scale)
+
+##sheep
+lca<-partial(gbmtest,n.trees=best.iter, "log_sheep",prob=TRUE)
+
+plot1 <- lca %>%
+  select(log_sheep, yhat) %>%
+  na.omit() %>%
+  ggplot() +
+  geom_line(aes(x = log_sheep, y = yhat),color="red") +
+  # ylim(0.,1) +
+  ylab(" ") +
+  theme_minimal() +
+  theme(axis.title.x = element_blank())+ theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
+  theme(axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())
+
+plot2 <- Train %>%
+  select(log_sheep) %>%
+  na.omit() %>%
+  ggplot(aes(log_sheep)) +
+  geom_histogram(fill="lightblue") +
+  scale_y_continuous(position="right",breaks = function(x) unique(floor(pretty(seq(0, (max(x) + 1) * 1.1)))))+
+  ylab(" ") +
+  theme_minimal() +
+  theme(axis.title.x = element_blank())+
+  theme(plot.margin=unit(c(0,0,0,1.25),"cm"))
+
+p1 <- add_sub(plot1," ")
+p2 <- add_sub(plot2,"log (sheep)",size=12)
+aligned <- align_plots(p1, p2, align = "v")
+pllsh <- ggdraw()+
+  draw_plot(aligned[[2]])+
+  draw_plot(aligned[[1]],
+            scale = scale)
+
+#log_road_pigs
+lca<-partial(gbmtest,n.trees=best.iter, "log_road_pigs",prob=TRUE)
+
+plot1 <- lca %>%
+  select(log_road_pigs, yhat) %>%
+  na.omit() %>%
+  ggplot() +
+  geom_line(aes(x = log_road_pigs, y = yhat),color="red") +
+  # ylim(0.,1) +
+  ylab(" ") +
+  theme_minimal() +
+  theme(axis.title.x = element_blank())+ theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
+  theme(axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())
+
+plot2 <- Train %>%
+  select(log_road_pigs) %>%
+  na.omit() %>%
+  ggplot(aes(log_road_pigs)) +
+  geom_histogram(fill="lightblue") +
+  scale_y_continuous(position="right",breaks = function(x) unique(floor(pretty(seq(0, (max(x) + 1) * 1.1)))))+
+  ylab(" ") +
+  theme_minimal() +
+  theme(axis.title.x = element_blank())+
+  theme(plot.margin=unit(c(0,0,0,1.25),"cm"))
+
+p1 <- add_sub(plot1," ")
+p2 <- add_sub(plot2,"log (roads X pigs)",size=12)
+aligned <- align_plots(p1, p2, align = "v")
+plrp <- ggdraw()+
+  draw_plot(aligned[[2]])+
+  draw_plot(aligned[[1]],
+            scale = scale)
+
+#log road sheep
+
+lca<-partial(gbmtest,n.trees=best.iter, "log_road_sheep",prob=TRUE)
+
+plot1 <- lca %>%
+  select(log_road_sheep, yhat) %>%
+  na.omit() %>%
+  ggplot() +
+  geom_line(aes(x = log_road_sheep, y = yhat),color="red") +
+  # ylim(0.,1) +
+  ylab(" ") +
+  theme_minimal() +
+  theme(axis.title.x = element_blank())+ theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
+  theme(axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())
+
+plot2 <- Train %>%
+  select(log_road_sheep) %>%
+  na.omit() %>%
+  ggplot(aes(log_road_sheep)) +
+  geom_histogram(fill="lightblue") +
+  scale_y_continuous(position="right",breaks = function(x) unique(floor(pretty(seq(0, (max(x) + 1) * 1.1)))))+
+  ylab(" ") +
+  theme_minimal() +
+  theme(axis.title.x = element_blank())+
+  theme(plot.margin=unit(c(0,0,0,1.25),"cm"))
+
+p1 <- add_sub(plot1," ")
+p2 <- add_sub(plot2,"log (roads X sheep)",size=12)
+aligned <- align_plots(p1, p2, align = "v")
+prshp <- ggdraw()+
+  draw_plot(aligned[[2]])+
+  draw_plot(aligned[[1]],
+            scale = scale)
+
+#georgia
+lca<-partial(gbmtest,n.trees=best.iter, "countryGeorgia",prob=TRUE)
+
+plot1 <- lca %>%
+  select(countryGeorgia, yhat) %>%
+  na.omit() %>%
+  ggplot() +
+  geom_line(aes(x = countryGeorgia, y = yhat),color="red") +
+  # ylim(0.,1) +
+  ylab(" ") +
+  theme_minimal() +
+  theme(axis.title.x = element_blank())+ theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
+  theme(axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())
+
+plot2 <- Train %>%
+  select(countryGeorgia) %>%
+  na.omit() %>%
+  ggplot(aes(countryGeorgia)) +
+  geom_histogram(fill="lightblue") +
+  scale_y_continuous(position="right",breaks = function(x) unique(floor(pretty(seq(0, (max(x) + 1) * 1.1)))))+
+  ylab(" ") +
+  theme_minimal() +
+  theme(axis.title.x = element_blank())+
+  theme(plot.margin=unit(c(0,0,0,1.25),"cm"))
+
+p1 <- add_sub(plot1," ")
+p2 <- add_sub(plot2,"Georgia",size=12)
+aligned <- align_plots(p1, p2, align = "v")
+plge <- ggdraw()+
+  draw_plot(aligned[[2]])+
+  draw_plot(aligned[[1]],
+            scale = scale)
+
+# #ecoregionCentralZambezianMiomboWoodlands
+# lca<-partial(gbmtest,n.trees=best.iter, "ecoregionCentralZambezianMiomboWoodlands",prob=TRUE)
+# 
+# plot1 <- lca %>%
+#   select(ecoregionCentralZambezianMiomboWoodlands, yhat) %>%
+#   na.omit() %>%
+#   ggplot() +
+#   geom_line(aes(x = ecoregionCentralZambezianMiomboWoodlands, y = yhat),color="red") +
+#   # ylim(0.,1) +
+#   ylab(" ") +
+#   theme_minimal() +
+#   theme(axis.title.x = element_blank())+ theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
+#   theme(axis.text.x=element_blank(),
+#         axis.ticks.x=element_blank())
+# 
+# plot2 <- Train %>%
+#   select(ecoregionCentralZambezianMiomboWoodlands) %>%
+#   na.omit() %>%
+#   ggplot(aes(ecoregionCentralZambezianMiomboWoodlands)) +
+#   geom_histogram(fill="lightblue") +
+#   scale_y_continuous(position="right",breaks = function(x) unique(floor(pretty(seq(0, (max(x) + 1) * 1.1)))))+
+#   ylab(" ") +
+#   theme_minimal() +
+#   theme(axis.title.x = element_blank())+
+#   theme(plot.margin=unit(c(0,0,0,1.25),"cm"))
+# 
+# p1 <- add_sub(plot1," ")
+# p2 <- add_sub(plot2,"Zambezian Woodlands",size=12)
+# aligned <- align_plots(p1, p2, align = "v")
+# peczw <- ggdraw()+
+#   draw_plot(aligned[[2]])+
+#   draw_plot(aligned[[1]],
+#             scale = scale)
+
+##mammal diversity
+lca<-partial(gbmtest,n.trees=best.iter, "mammalDiversity",prob=TRUE)
+
+plot1 <- lca %>%
+  select(mammalDiversity, yhat) %>%
+  na.omit() %>%
+  ggplot() +
+  geom_line(aes(x = mammalDiversity, y = yhat),color="red") +
+  # ylim(0.,1) +
+  ylab(" ") +
+  theme_minimal() +
+  theme(axis.title.x = element_blank())+ theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
+  theme(axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())
+
+plot2 <- Train %>%
+  select(mammalDiversity) %>%
+  na.omit() %>%
+  ggplot(aes(mammalDiversity)) +
+  geom_histogram(fill="lightblue") +
+  scale_y_continuous(position="right",breaks = function(x) unique(floor(pretty(seq(0, (max(x) + 1) * 1.1)))))+
+  ylab(" ") +
+  theme_minimal() +
+  theme(axis.title.x = element_blank())+
+  theme(plot.margin=unit(c(0,0,0,1.25),"cm"))
+
+p1 <- add_sub(plot1," ")
+p2 <- add_sub(plot2,"mammal diversity",size=12)
+aligned <- align_plots(p1, p2, align = "v")
+pmd <- ggdraw()+
+  draw_plot(aligned[[2]])+
+  draw_plot(aligned[[1]],
+            scale = scale)
+
+#goats
+lca<-partial(gbmtest,n.trees=best.iter, "log_goats",prob=TRUE)
+
+plot1 <- lca %>%
+  select(log_goats, yhat) %>%
+  na.omit() %>%
+  ggplot() +
+  geom_line(aes(x = log_goats, y = yhat),color="red") +
+  # ylim(0.,1) +
+  ylab(" ") +
+  theme_minimal() +
+  theme(axis.title.x = element_blank())+ theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
+  theme(axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())
+
+plot2 <- Train %>%
+  select(log_goats) %>%
+  na.omit() %>%
+  ggplot(aes(log_goats)) +
+  geom_histogram(fill="lightblue") +
+  scale_y_continuous(position="right",breaks = function(x) unique(floor(pretty(seq(0, (max(x) + 1) * 1.1)))))+
+  ylab(" ") +
+  theme_minimal() +
+  theme(axis.title.x = element_blank())+
+  theme(plot.margin=unit(c(0,0,0,1.25),"cm"))
+
+p1 <- add_sub(plot1," ")
+p2 <- add_sub(plot2,"log (goats)",size=12)
+aligned <- align_plots(p1, p2, align = "v")
+pg <- ggdraw()+
+  draw_plot(aligned[[2]])+
+  draw_plot(aligned[[1]],
+            scale = scale)
+
+# #NDVI
+# lca<-partial(gbmtest,n.trees=best.iter, "NDVI",prob=TRUE)
+# 
+# plot1 <- lca %>%
+#   select(NDVI, yhat) %>%
+#   na.omit() %>%
+#   ggplot() +
+#   geom_line(aes(x = NDVI, y = yhat),color="red") +
+#   # ylim(0.,1) +
+#   ylab(" ") +
+#   theme_minimal() +
+#   theme(axis.title.x = element_blank())+ theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
+#   theme(axis.text.x=element_blank(),
+#         axis.ticks.x=element_blank())
+# 
+# plot2 <- Train %>%
+#   select(NDVI) %>%
+#   na.omit() %>%
+#   ggplot(aes(NDVI)) +
+#   geom_histogram(fill="lightblue") +
+#   scale_y_continuous(position="right",breaks = function(x) unique(floor(pretty(seq(0, (max(x) + 1) * 1.1)))))+
+#   ylab(" ") +
+#   theme_minimal() +
+#   theme(axis.title.x = element_blank())+
+#   theme(plot.margin=unit(c(0,0,0,1.25),"cm"))
+# 
+# p1 <- add_sub(plot1," ")
+# p2 <- add_sub(plot2,"NDVI",size=12)
+# aligned <- align_plots(p1, p2, align = "v")
+# pnd <- ggdraw()+
+#   draw_plot(aligned[[2]])+
+#   draw_plot(aligned[[1]],
+#             scale = scale)
+
+#log road chickens
+
+lca<-partial(gbmtest,n.trees=best.iter, "log_road_chickens",prob=TRUE)
+
+plot1 <- lca %>%
+  select(log_road_chickens, yhat) %>%
+  na.omit() %>%
+  ggplot() +
+  geom_line(aes(x = log_road_chickens, y = yhat),color="red") +
+  # ylim(0.,1) +
+  ylab(" ") +
+  theme_minimal() +
+  theme(axis.title.x = element_blank())+ theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
+  theme(axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())
+
+plot2 <- Train %>%
+  select(log_road_chickens) %>%
+  na.omit() %>%
+  ggplot(aes(log_road_chickens)) +
+  geom_histogram(fill="lightblue") +
+  scale_y_continuous(position="right",breaks = function(x) unique(floor(pretty(seq(0, (max(x) + 1) * 1.1)))))+
+  ylab(" ") +
+  theme_minimal() +
+  theme(axis.title.x = element_blank())+
+  theme(plot.margin=unit(c(0,0,0,1.25),"cm"))
+
+p1 <- add_sub(plot1," ")
+p2 <- add_sub(plot2,"log (roads X chickens)",size=12)
+aligned <- align_plots(p1, p2, align = "v")
+prc <- ggdraw()+
+  draw_plot(aligned[[2]])+
+  draw_plot(aligned[[1]],
+            scale = scale)
+
+#Russia
+lca<-partial(gbmtest,n.trees=best.iter, "countryRussia",prob=TRUE)
+
+plot1 <- lca %>%
+  select(countryRussia, yhat) %>%
+  na.omit() %>%
+  ggplot() +
+  geom_line(aes(x = countryRussia, y = yhat),color="red") +
+  # ylim(0.,1) +
+  ylab(" ") +
+  theme_minimal() +
+  theme(axis.title.x = element_blank())+ theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
+  theme(axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())
+
+plot2 <- Train %>%
+  select(countryRussia) %>%
+  na.omit() %>%
+  ggplot(aes(countryRussia)) +
+  geom_histogram(fill="lightblue") +
+  scale_y_continuous(position="right",breaks = function(x) unique(floor(pretty(seq(0, (max(x) + 1) * 1.1)))))+
+  ylab(" ") +
+  theme_minimal() +
+  theme(axis.title.x = element_blank())+
+  theme(plot.margin=unit(c(0,0,0,1.25),"cm"))
+
+p1 <- add_sub(plot1," ")
+p2 <- add_sub(plot2,"Russia",size=12)
+aligned <- align_plots(p1, p2, align = "v")
+plruss <- ggdraw()+
+  draw_plot(aligned[[2]])+
+  draw_plot(aligned[[1]],
+            scale = scale)
+
+#Russia
+lca<-partial(gbmtest,n.trees=best.iter, "annualMeanTemp",prob=TRUE)
+
+plot1 <- lca %>%
+  select(annualMeanTemp, yhat) %>%
+  na.omit() %>%
+  ggplot() +
+  geom_line(aes(x = annualMeanTemp, y = yhat),color="red") +
+  # ylim(0.,1) +
+  ylab(" ") +
+  theme_minimal() +
+  theme(axis.title.x = element_blank())+ theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
+  theme(axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())
+
+plot2 <- Train %>%
+  select(annualMeanTemp) %>%
+  na.omit() %>%
+  ggplot(aes(annualMeanTemp)) +
+  geom_histogram(fill="lightblue") +
+  scale_y_continuous(position="right",breaks = function(x) unique(floor(pretty(seq(0, (max(x) + 1) * 1.1)))))+
+  ylab(" ") +
+  theme_minimal() +
+  theme(axis.title.x = element_blank())+
+  theme(plot.margin=unit(c(0,0,0,1.25),"cm"))
+
+p1 <- add_sub(plot1," ")
+p2 <- add_sub(plot2,"Annual Mean Temp.",size=12)
+aligned <- align_plots(p1, p2, align = "v")
+pann_temp <- ggdraw()+
+  draw_plot(aligned[[2]])+
+  draw_plot(aligned[[1]],
+            scale = scale)
+
+# combine plots
+grid.arrange(pigs, plca, plc, pnt,prc, pcaf,
+             pss,
+             pmd,
+             pg,
+             plge,
+              pann_temp,             
+           plruss,
+             ncol=3,left = textGrob("Model output probabilities", rot = 90, vjust = 1),right = textGrob("Frequency", rot = 270, vjust = 1))
+
+
+```
+
+###partial dependence -- JP Schmidt method w/ adjustments -- ticks
+```{r}
+scale = 0.98
+load("TrainLivestock.Rdata")
+load("gbmtestLivestock.Rdata")
+library(gbm)
+library(cowplot)
+library(pdp)
+library(dplyr)
+library(ggplot2)
+library(grid)
+library(gridExtra)
+#best.iter = 2942
+best.iter <- gbm.perf(gbmtest,method="cv",plot.it=FALSE) #this gives you the optimal number of trees based on cv performance, other methods will over or under predict
+
+ls<-partial(gbmtest,n.trees=best.iter, "Carioserraticus",prob=TRUE)
+
+plot1 <- ls %>%
+  select(Carioserraticus, yhat) %>%
+  na.omit() %>%
+  ggplot() +
+  geom_line(aes(x = Carioserraticus, y = yhat),color="red") +
+  # ylim(0.,1) +
+  ylab(" ") +
+  theme_minimal() +
+  theme(axis.title.x = element_blank())+ theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
+  theme(axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())
+
+plot2 <- Train %>%
+  select(Carioserraticus) %>%
+  na.omit() %>%
+  ggplot(aes(Carioserraticus)) +
+  geom_histogram(fill="lightblue") +
+  scale_y_continuous(position="right",breaks = function(x) unique(floor(pretty(seq(0, (max(x) + 1) * 1.1)))))+
+  ylab(" ") +
+  theme_minimal() +
+  theme(axis.title.x = element_blank())+
+  theme(plot.margin=unit(c(0,0,0,1.25),"cm"))
+
+p1 <- add_sub(plot1," ")
+p2 <- add_sub(plot2,"Carios erraticus",size=12)
+
+aligned <- align_plots(p1, p2, align = "v")
+pls <- ggdraw()+
+  draw_plot(aligned[[2]])+
+  draw_plot(aligned[[1]],
+            scale = scale)
+
+#nicollei
+ls<-partial(gbmtest,n.trees=best.iter, "Ornithodorosnicollei",prob=TRUE)
+
+plot1 <- ls %>%
+  select(Ornithodorosnicollei, yhat) %>%
+  na.omit() %>%
+  ggplot() +
+  geom_line(aes(x = Ornithodorosnicollei, y = yhat),color="red") +
+  # ylim(0.,1) +
+  ylab(" ") +
+  theme_minimal() +
+  theme(axis.title.x = element_blank())+ theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
+  theme(axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())
+
+plot2 <- Train %>%
+  select(Ornithodorosnicollei) %>%
+  na.omit() %>%
+  ggplot(aes(Ornithodorosnicollei)) +
+  geom_histogram(fill="lightblue") +
+  scale_y_continuous(position="right",breaks = function(x) unique(floor(pretty(seq(0, (max(x) + 1) * 1.1)))))+
+  ylab(" ") +
+  theme_minimal() +
+  theme(axis.title.x = element_blank())+
+  theme(plot.margin=unit(c(0,0,0,1.25),"cm"))
+
+p1 <- add_sub(plot1," ")
+p2 <- add_sub(plot2,"Ornithodoros nicollei",size=12)
+
+aligned <- align_plots(p1, p2, align = "v")
+oni <- ggdraw()+
+  draw_plot(aligned[[2]])+
+  draw_plot(aligned[[1]],
+            scale = scale)
+
+#gurneyi
+ls<-partial(gbmtest,n.trees=best.iter, "Ornithodorosgurneyi",prob=TRUE)
+
+plot1 <- ls %>%
+  select(Ornithodorosgurneyi, yhat) %>%
+  na.omit() %>%
+  ggplot() +
+  geom_line(aes(x = Ornithodorosgurneyi, y = yhat),color="red") +
+  # ylim(0.,1) +
+  ylab(" ") +
+  theme_minimal() +
+  theme(axis.title.x = element_blank())+ theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
+  theme(axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())
+
+plot2 <- Train %>%
+  select(Ornithodorosgurneyi) %>%
+  na.omit() %>%
+  ggplot(aes(Ornithodorosgurneyi)) +
+  geom_histogram(fill="lightblue") +
+  scale_y_continuous(position="right",breaks = function(x) unique(floor(pretty(seq(0, (max(x) + 1) * 1.1)))))+
+  ylab(" ") +
+  theme_minimal() +
+  theme(axis.title.x = element_blank())+
+  theme(plot.margin=unit(c(0,0,0,1.25),"cm"))
+
+p1 <- add_sub(plot1," ")
+p2 <- add_sub(plot2,"O. gurneyi",size=12)
+
+aligned <- align_plots(p1, p2, align = "v")
+ogu <- ggdraw()+
+  draw_plot(aligned[[2]])+
+  draw_plot(aligned[[1]],
+            scale = scale)
+
+#moubata
+ls<-partial(gbmtest,n.trees=best.iter, "Ornithodorosmoubata",prob=TRUE)
+
+plot1 <- ls %>%
+  select(Ornithodorosmoubata, yhat) %>%
+  na.omit() %>%
+  ggplot() +
+  geom_line(aes(x = Ornithodorosmoubata, y = yhat),color="red") +
+  # ylim(0.,1) +
+  ylab(" ") +
+  theme_minimal() +
+  theme(axis.title.x = element_blank())+ theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
+  theme(axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())
+
+plot2 <- Train %>%
+  select(Ornithodorosmoubata) %>%
+  na.omit() %>%
+  ggplot(aes(Ornithodorosmoubata)) +
+  geom_histogram(fill="lightblue") +
+  scale_y_continuous(position="right",breaks = function(x) unique(floor(pretty(seq(0, (max(x) + 1) * 1.1)))))+
+  ylab(" ") +
+  theme_minimal() +
+  theme(axis.title.x = element_blank())+
+  theme(plot.margin=unit(c(0,0,0,1.25),"cm"))
+
+p1 <- add_sub(plot1," ")
+p2 <- add_sub(plot2,"O. moubata",size=12)
+
+aligned <- align_plots(p1, p2, align = "v")
+omo <- ggdraw()+
+  draw_plot(aligned[[2]])+
+  draw_plot(aligned[[1]],
+            scale = scale)
+
+#tholozani
+ls<-partial(gbmtest,n.trees=best.iter, "Ornithodorostholozani",prob=TRUE)
+
+plot1 <- ls %>%
+  select(Ornithodorostholozani, yhat) %>%
+  na.omit() %>%
+  ggplot() +
+  geom_line(aes(x = Ornithodorostholozani, y = yhat),color="red") +
+  # ylim(0.,1) +
+  ylab(" ") +
+  theme_minimal() +
+  theme(axis.title.x = element_blank())+ theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
+  theme(axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())
+
+plot2 <- Train %>%
+  select(Ornithodorostholozani) %>%
+  na.omit() %>%
+  ggplot(aes(Ornithodorostholozani)) +
+  geom_histogram(fill="lightblue") +
+  scale_y_continuous(position="right",breaks = function(x) unique(floor(pretty(seq(0, (max(x) + 1) * 1.1)))))+
+  ylab(" ") +
+  theme_minimal() +
+  theme(axis.title.x = element_blank())+
+  theme(plot.margin=unit(c(0,0,0,1.25),"cm"))
+
+p1 <- add_sub(plot1," ")
+p2 <- add_sub(plot2,"O. tholozani",size=12)
+
+aligned <- align_plots(p1, p2, align = "v")
+oth <- ggdraw()+
+  draw_plot(aligned[[2]])+
+  draw_plot(aligned[[1]],
+            scale = scale)
+
+#macmillani
+ls<-partial(gbmtest,n.trees=best.iter, "Ornithodorosmacmillani",prob=TRUE)
+
+plot1 <- ls %>%
+  select(Ornithodorosmacmillani, yhat) %>%
+  na.omit() %>%
+  ggplot() +
+  geom_line(aes(x = Ornithodorosmacmillani, y = yhat),color="red") +
+  # ylim(0.,1) +
+  ylab(" ") +
+  theme_minimal() +
+  theme(axis.title.x = element_blank())+ theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
+  theme(axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())
+
+plot2 <- Train %>%
+  select(Ornithodorosmacmillani) %>%
+  na.omit() %>%
+  ggplot(aes(Ornithodorosmacmillani)) +
+  geom_histogram(fill="lightblue") +
+  scale_y_continuous(position="right",breaks = function(x) unique(floor(pretty(seq(0, (max(x) + 1) * 1.1)))))+
+  ylab(" ") +
+  theme_minimal() +
+  theme(axis.title.x = element_blank())+
+  theme(plot.margin=unit(c(0,0,0,1.25),"cm"))
+
+p1 <- add_sub(plot1," ")
+p2 <- add_sub(plot2,"O. macmillani",size=12)
+
+aligned <- align_plots(p1, p2, align = "v")
+oma <- ggdraw()+
+  draw_plot(aligned[[2]])+
+  draw_plot(aligned[[1]],
+            scale = scale)
+
+#turicata
+ls<-partial(gbmtest,n.trees=best.iter, "Ornithodorosturicata",prob=TRUE)
+
+plot1 <- ls %>%
+  select(Ornithodorosturicata, yhat) %>%
+  na.omit() %>%
+  ggplot() +
+  geom_line(aes(x = Ornithodorosturicata, y = yhat),color="red") +
+  # ylim(0.,1) +
+  ylab(" ") +
+  theme_minimal() +
+  theme(axis.title.x = element_blank())+ theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
+  theme(axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())
+
+plot2 <- Train %>%
+  select(Ornithodorosturicata) %>%
+  na.omit() %>%
+  ggplot(aes(Ornithodorosturicata)) +
+  geom_histogram(fill="lightblue") +
+  scale_y_continuous(position="right",breaks = function(x) unique(floor(pretty(seq(0, (max(x) + 1) * 1.1)))))+
+  ylab(" ") +
+  theme_minimal() +
+  theme(axis.title.x = element_blank())+
+  theme(plot.margin=unit(c(0,0,0,1.25),"cm"))
+
+p1 <- add_sub(plot1," ")
+p2 <- add_sub(plot2,"O. turicata",size=12)
+
+aligned <- align_plots(p1, p2, align = "v")
+otu <- ggdraw()+
+  draw_plot(aligned[[2]])+
+  draw_plot(aligned[[1]],
+            scale = scale)
+
+#hermsi
+ls<-partial(gbmtest,n.trees=best.iter, "Ornithodoroshermsi",prob=TRUE)
+
+plot1 <- ls %>%
+  select(Ornithodoroshermsi, yhat) %>%
+  na.omit() %>%
+  ggplot() +
+  geom_line(aes(x = Ornithodoroshermsi, y = yhat),color="red") +
+  # ylim(0.,1) +
+  ylab(" ") +
+  theme_minimal() +
+  theme(axis.title.x = element_blank())+ theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
+  theme(axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())
+
+plot2 <- Train %>%
+  select(Ornithodoroshermsi) %>%
+  na.omit() %>%
+  ggplot(aes(Ornithodoroshermsi)) +
+  geom_histogram(fill="lightblue") +
+  scale_y_continuous(position="right",breaks = function(x) unique(floor(pretty(seq(0, (max(x) + 1) * 1.1)))))+
+  ylab(" ") +
+  theme_minimal() +
+  theme(axis.title.x = element_blank())+
+  theme(plot.margin=unit(c(0,0,0,1.25),"cm"))
+
+p1 <- add_sub(plot1," ")
+p2 <- add_sub(plot2,"O. hermsi",size=12)
+
+aligned <- align_plots(p1, p2, align = "v")
+ohe <- ggdraw()+
+  draw_plot(aligned[[2]])+
+  draw_plot(aligned[[1]],
+            scale = scale)
+
+#savignyi
+ls<-partial(gbmtest,n.trees=best.iter, "Ornithodorossavignyi",prob=TRUE)
+
+plot1 <- ls %>%
+  select(Ornithodorossavignyi, yhat) %>%
+  na.omit() %>%
+  ggplot() +
+  geom_line(aes(x = Ornithodorossavignyi, y = yhat),color="red") +
+  # ylim(0.,1) +
+  ylab(" ") +
+  theme_minimal() +
+  theme(axis.title.x = element_blank())+ theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
+  theme(axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())
+
+plot2 <- Train %>%
+  select(Ornithodorossavignyi) %>%
+  na.omit() %>%
+  ggplot(aes(Ornithodorossavignyi)) +
+  geom_histogram(fill="lightblue") +
+  scale_y_continuous(position="right",breaks = function(x) unique(floor(pretty(seq(0, (max(x) + 1) * 1.1)))))+
+  ylab(" ") +
+  theme_minimal() +
+  theme(axis.title.x = element_blank())+
+  theme(plot.margin=unit(c(0,0,0,1.25),"cm"))
+
+p1 <- add_sub(plot1," ")
+p2 <- add_sub(plot2,"O. savignyi",size=12)
+
+aligned <- align_plots(p1, p2, align = "v")
+osav <- ggdraw()+
+  draw_plot(aligned[[2]])+
+  draw_plot(aligned[[1]],
+            scale = scale)
+
+# combine plots
+grid.arrange(ohe,
+    pls,#Carioserraticus
+             oma,
+              oth, 
+               omo,
+                 otu,
+              ogu,               oni,osav,
+             ncol=3,left = textGrob("Model output probabilities", rot = 90, vjust = 1),right = textGrob("Frequency", rot = 270, vjust = 1))
+
+```
+
+
 
 ###assemble predictors into one raster brick
 ```{r predictors_brick}
@@ -2058,8 +3066,8 @@ save(dfpred_hi_pts, file = "dfpred_hi_pts.Rdata")
 
 ```
 
-#surveillance priorities with hex plot 
-```{r}
+#surveillance priorities with hex plot and geom_point
+```{r surveillance}
 #have confirmed that this found closest points that were African swine fever, swine hosts
 load("dfpred_hi_pts.Rdata")
 
@@ -2081,10 +3089,28 @@ theme(legend.position="bottom")+
 mp
 ggsave(plot = mp, filename = "points_90percent_predicted_over_1deg_outbreak_swine_swine.jpg")
 
+#make version without hex
+mp <- ggplot() +   mapWorld
+#Now layer the land cover data on top
+
+df = data.frame(dfpred_hi_pts)
+df = subset(df, minimum_distance >=1 & predicted >= 0.9)
+
+mp <- mp+ geom_point(data = df, aes(x=x, y=y),
+                     color = 'red',
+                     alpha = 0.05)+
+theme(legend.position="bottom")+
+  guides(fill=guide_legend(title="Locs. w/ probability>0.9, >=1 deg. from African swine fever in pigs"))+
+  xlab("Longitude")+
+  ylab("Latitude")
+
+mp
+ggsave(plot = mp, filename = "points_90percent_predicted_over_1deg_outbreak_swine_swine_no_hex.jpg")
+
 ```
 
 #hotspots with hex plot 
-```{r}
+```{r hotspots}
 #have confirmed that this found closest points that were African swine fever, swine hosts
 load("dfpred_hi_pts.Rdata")
 
@@ -2107,10 +3133,25 @@ theme(legend.position="bottom")+
 mp
 ggsave(plot = mp, filename = "points_90percent_predicted_under_1deg_outbreak_swine_swine.jpg")
 
+
+mp <- ggplot() +   mapWorld
+mp <- mp+ geom_point(data = df, aes(x=x, y=y),
+                     color = 'blue',
+                     alpha = 0.05)+
+theme(legend.position="bottom")+
+  guides(fill=guide_legend(title="Locs. w/ probability>0.9, <1 deg. from African swine fever in pigs"))+
+  xlab("Longitude")+
+  ylab("Latitude")
+
+mp
+ggsave(plot = mp, filename = "points_90percent_predicted_under_1deg_outbreak_swine_swine_no_hex.jpg")
+
+
+
 ```
 
 #find locations with high gradient
-```{r}
+```{r high_gradient}
 library(ggplot2)
 load("dfPredictors_predicted.Rdata")
 df = dfPredictors_predicted
@@ -2143,7 +3184,8 @@ mp<- ggplot()+world
 
     mp <- mp+
    # geom_tile(data = out_sub, aes(x = x, y = y, alpha = diff_predicted))
-   geom_point(data = out_sub, aes(x = x, y = y, alpha = diff_predicted))
+   geom_point(data = out_sub, aes(x = x, y = y, alpha = diff_predicted),
+              color = "green")
 
   ggsave("gradientASF_lo_hi.jpg", plot = mp, height = 7, width = 7*2)
   
