@@ -323,6 +323,7 @@ rm = c("NDVI.x",
        "NDVI.y",
        "NDVI")
 df = dfAnimal_names
+dim(df)
 keep  = setdiff(names(df), rm)
 df = df[,keep]
 
@@ -383,10 +384,23 @@ for (i in 1:length(files)){
 }
 keep = setdiff(names(out), "ID")
 out = out[,keep]
-#df_unassigned = subset(df, !(ndvi_row %in% out$ndvi_row))
-#df_unassigned$NDVI = NA
+df_unassigned = subset(df, !(ndvi_row %in% out$ndvi_row))
+df_unassigned$NDVI = NA
 
-#dfAnimal = rbind(out, df_unassigned)
+setdiff(names(out), names(df_unassigned))
+setdiff(names(df_unassigned), names(out))
+
+rm = c("ID", "ID.x", "ID.y")
+keep = names(out)
+keep = setdiff(keep, rm)
+out = out[, keep]
+
+keep = names(df_unassigned)
+keep = setdiff(keep, rm)
+df_unassigned = df_unassigned[, keep]
+
+out = rbind(out, df_unassigned)
+dim(out)
 dfNDVI = out
 save(dfNDVI, file = "dfNDVI.Rdata")
 load("dfNDVI.Rdata")  
@@ -397,6 +411,8 @@ load("dfNDVI.Rdata")
 load("dfNDVI.Rdata")
 df = dfNDVI
 df = subset(df, animal.species == "swine" & disease == "African swine fever")
+cases = subset(df, case == 1)
+dim(cases)
 dfNDVI = df
 save(dfNDVI, file = "dfNDVI.Rdata")
 dim(dfNDVI)
@@ -410,6 +426,8 @@ load("dfNDVI.Rdata")
 rm = c("NDVI.x",
        "NDVI.y")
 df = dfNDVI
+dim(df)
+df$index = seq(1, dim(df)[1])
 keep  = setdiff(names(df), rm)
 df = df[,keep]
 
@@ -483,9 +501,29 @@ for (i in 1:length(years)){
 
 }
 
+rm = c("ID", "ID.x", "ID.y")
+keep = names(out)
+keep = setdiff(keep, rm)
+out = out[, keep]
+
 dfAnimal = out
 
+missing_inds = setdiff(df$index, 
+                          out$index)
+missing_ind_rows = which(df$index %in% missing_inds)
+df_missing = df[missing_ind_rows,]#get these rows
+#assign to these rows that land cover values are unknown
+df_missing$LC_current_year = NA
+df_missing$LC_previous_year = NA
+
+keep = names(df_missing)
+keep = setdiff(keep, rm)
+df_missing = df_missing[, keep]
+
+dfAnimal = rbind(dfAnimal, df_missing)#add the missing data to df_Animal
+
 df = dfAnimal
+dim(df)
 rm(out, dfAnimal, df_tmp, locs.vals.df, R, dfNDVI)
 dfLC_yrs = df
 
@@ -918,12 +956,20 @@ save(df, file = "df_Ornithodoros.Rdata")
 ```{r lc_one_hot}
 library(caret)
 load("df_Ornithodoros.Rdata")
+
+cases = subset(df, case == 1)
+dim(cases)
+min(cases$year)
+max(cases$year)
+length(unique(cases$country))
 names(df)
 inds_minus_1 = which(df$NDVI == -1)
 df$NDVI[inds_minus_1]=NA
 inds = c(3:4,#latitude long
          31,#case
-         35:44,#ndvi, land cover, road, log livestock density, 
+         33,#ndvi,   
+         35:36,#land cover,
+         38:44,#road, log livestock density,
          46,#nightlights
          53:57,#log road density
          59:76,#Suidae
@@ -1084,7 +1130,7 @@ if ("roadDensity" %in% names(df)) {
   df$logRoadDensity = log(df$roadDensity+0.0001)
 }
 
-rm_fields = c("roadDensity", "latitude", "longitude", "row", "ID")
+rm_fields = c("roadDensity", "latitude", "longitude", "row", "ID", "IDx")
 okay_fields = setdiff(names(df), rm_fields)
 df = df[,okay_fields]
 dfPredictors = df
@@ -1122,6 +1168,7 @@ save(Train, file = "TrainLivestock.Rdata")
 save(Test, file = "TestLivestock.Rdata")
 
 ```
+
 
 ###run GBM -- predictors include roads, livestock, nightlights (2013), land cover, climate, country
 ```{r gbm_run}
@@ -2052,6 +2099,40 @@ library(grid)
 library(gridExtra)
 #best.iter = 2942
 best.iter <- gbm.perf(gbmtest,method="cv",plot.it=FALSE) #this gives you the optimal number of trees based on cv performance, other methods will over or under predict
+ls<-partial(gbmtest,n.trees=best.iter, "Ornithodorosparkeri",prob=TRUE)
+
+plot1 <- ls %>%
+  select(Ornithodorosparkeri, yhat) %>%
+  na.omit() %>%
+  ggplot() +
+  geom_line(aes(x = Ornithodorosparkeri, y = yhat),color="red") +
+  # ylim(0.,1) +
+  ylab(" ") +
+  theme_minimal() +
+  theme(axis.title.x = element_blank())+ theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
+  theme(axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())
+
+plot2 <- Train %>%
+  select(Ornithodorosparkeri) %>%
+  na.omit() %>%
+  ggplot(aes(Ornithodorosparkeri)) +
+  geom_histogram(fill="lightblue") +
+  scale_y_continuous(position="right",breaks = function(x) unique(floor(pretty(seq(0, (max(x) + 1) * 1.1)))))+
+  ylab(" ") +
+  theme_minimal() +
+  theme(axis.title.x = element_blank())+
+  theme(plot.margin=unit(c(0,0,0,1.25),"cm"))
+
+p1 <- add_sub(plot1," ")
+p2 <- add_sub(plot2,"O. parkerki",size=12)
+
+aligned <- align_plots(p1, p2, align = "v")
+park <- ggdraw()+
+  draw_plot(aligned[[2]])+
+  draw_plot(aligned[[1]],
+            scale = scale)
+
 
 ls<-partial(gbmtest,n.trees=best.iter, "Carioserraticus",prob=TRUE)
 
@@ -2368,13 +2449,16 @@ osav <- ggdraw()+
             scale = scale)
 
 # combine plots
-grid.arrange(ohe,
-    pls,#Carioserraticus
-             oma,
-              oth, 
-               omo,
-                 otu,
-              ogu,               oni,osav,
+grid.arrange(park,
+             omo,
+             oni,oth,
+             ogu,             pls,#Carioserraticus
+             oma, 
+             otu,
+             
+             
+             # ohe,
+             # osav,
              ncol=3,left = textGrob("Model output probabilities", rot = 90, vjust = 1),right = textGrob("Frequency", rot = 270, vjust = 1))
 
 ```
@@ -2498,7 +2582,7 @@ save(predictorPoints, file = "predictorPoints.Rdata")
 ```
 
 
-##land cover
+##land cover predictor points
 ```{r modis_land_cover_one_year}
 library("lubridate")
 library("rgdal")
@@ -2799,6 +2883,7 @@ hdf2raster.ndvi <- function(fname, varpos = 1, fill_value = -3000,
 load("predictorPoints_log.Rdata")
 
 df = predictorPoints_log
+rm(predictorPoints_log)
 # keep  = setdiff(names(df), rm)
 # df = df[,keep]
 
@@ -2808,6 +2893,7 @@ wd = "//09ies/Han/Data/MODIS_v6"
 wd_data = "//09ies/Han/Data/MODIS_v6"
 
 files = list.files(wd)
+files = files[c(109:168)]#just take most recent five years
 file_count = length(files)
 
 df$ndvi_row = seq(1,dim(df)[1])
